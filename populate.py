@@ -1,4 +1,4 @@
-import os
+﻿import os
 import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'locallibrary.settings')
 django.setup()
@@ -40,7 +40,8 @@ authors_data = [
 ]
 authors = {}
 for first, last, dob, dod in authors_data:
-    authors[last] = Author.objects.create(first_name=first, last_name=last, date_of_birth=dob, date_of_death=dod)
+    # FIXED: Replaced first_name and last_name with full_name
+    authors[last] = Author.objects.create(full_name=f'{last}, {first}', date_of_birth=dob, date_of_death=dod)
 
 print("Creating books...")
 books_data = [
@@ -77,14 +78,18 @@ for i, (title, book) in enumerate(books.items()):
     for j in range((i % 3) + 2):
         status = statuses[(i + j) % len(statuses)]
         due_back = date.today() + timedelta(days=(j+1)*7) if status == 'o' else None
+        
+        # FIXED: Splits full_name by the comma to extract the last name for the imprint
+        author_last_name = book.author.full_name.split(',')[0]
+        
         BookInstance.objects.create(
             id=uuid.uuid4(), book=book,
-            imprint=f'{book.author.last_name} Press, 2023',
+            imprint=f'{author_last_name} Press, 2023',
             status=status, due_back=due_back,
             borrower=borrower if status == 'o' else None,
         )
 
-print(f"\nDone!")
+print("\nDone!")
 print(f"  Genres:    {Genre.objects.count()}")
 print(f"  Languages: {Language.objects.count()}")
 print(f"  Authors:   {Author.objects.count()}")
