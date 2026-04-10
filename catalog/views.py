@@ -1,5 +1,6 @@
 import django
 from django.shortcuts import render
+from django.views import generic
 from .models import Book, BookInstance, Author, Genre
 
 SPINE_COLORS = [
@@ -13,7 +14,6 @@ SPINE_HEIGHTS = [
     155, 170, 145, 180, 160, 140, 175, 150, 165, 185,
     148, 172, 158, 142, 168, 178, 153, 163, 147, 182,
 ]
-
 
 def index(request):
     books = Book.objects.all().order_by('id')
@@ -34,15 +34,16 @@ def index(request):
     }
     return render(request, 'catalog/index.html', context)
 
+class BookListView(generic.ListView):
+    model = Book
+    paginate_by = 10
 
-def book_list(request):
-    q = request.GET.get('q', '')
-    books = Book.objects.all().order_by('title')
-    if q:
-        books = books.filter(title__icontains=q) | books.filter(author__last_name__icontains=q)
-    return render(request, 'catalog/book_list.html', {'books': books, 'query': q})
+class BookDetailView(generic.DetailView):
+    model = Book
 
+class AuthorListView(generic.ListView):
+    model = Author
+    paginate_by = 10
 
-def author_list(request):
-    authors = Author.objects.all().order_by('last_name')
-    return render(request, 'catalog/author_list.html', {'authors': authors})
+class AuthorDetailView(generic.DetailView):
+    model = Author

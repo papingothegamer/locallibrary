@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}LocalLibrary{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+  {% block pre_content %}{% endblock %}
+  <div class="page">
+    <div class="header">
+      <div class="library-name">LocalLibrary</div>
+      <div class="library-sub">University of Lodz &mdash; Application Servers</div>
+      <nav>
+        <a href="{% url 'index' %}">Home</a>
+        <a href="{% url 'books' %}">All books</a>
+        <a href="{% url 'authors' %}">Authors</a>
+        <a href="/admin/">Admin</a>
+      </nav>
+    </div>
+    
+    {% block content %}{% endblock %}
+    
+    {% block pagination %}
+      {% if is_paginated %}
+          <div class="pagination">
+              <span class="page-links">
+                  {% if page_obj.has_previous %}
+                      <a href="{{ request.path }}?page={{ page_obj.previous_page_number }}">previous</a>
+                  {% endif %}
+                  <span class="page-current">
+                      Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                  </span>
+                  {% if page_obj.has_next %}
+                      <a href="{{ request.path }}?page={{ page_obj.next_page_number }}">next</a>
+                  {% endif %}
+              </span>
+          </div>
+      {% endif %}
+    {% endblock %}
+    
+    <div class="footer">LocalLibrary &mdash; University of Lodz</div>
+  </div>
+</body>
+</html>

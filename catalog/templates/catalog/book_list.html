@@ -1,69 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Books â€” LocalLibrary</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Georgia, serif; background: #fafaf8; color: #1a1a1a; }
-    .page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
-    .header { border-bottom: 1px solid #e8e6df; padding-bottom: 1.5rem; margin-bottom: 2rem; }
-    .library-name { font-size: 26px; font-weight: 500; }
-    .library-sub { font-size: 13px; color: #888; margin-top: 4px; font-family: system-ui, sans-serif; }
-    nav { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 1rem; }
-    nav a { font-family: system-ui, sans-serif; font-size: 13px; color: #555; text-decoration: none; padding: 5px 12px; border: 1px solid #ddd; border-radius: 6px; }
-    nav a:hover { background: #f0efe8; }
-    .search-bar { display: flex; gap: 8px; margin-bottom: 2rem; }
-    .search-bar input { flex: 1; font-family: system-ui, sans-serif; font-size: 14px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; background: #fff; outline: none; }
-    .search-bar button { font-family: system-ui, sans-serif; font-size: 13px; padding: 8px 16px; border: 1px solid #ddd; border-radius: 6px; background: transparent; cursor: pointer; }
-    .search-bar button:hover { background: #f0efe8; }
-    .section-title { font-family: system-ui, sans-serif; font-size: 12px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 1rem; }
-    .book-list { border: 1px solid #e8e6df; border-radius: 10px; overflow: hidden; }
-    .book-row { display: flex; align-items: center; gap: 1rem; padding: 12px 16px; background: #fff; border-bottom: 1px solid #e8e6df; }
-    .book-row:last-child { border-bottom: none; }
-    .book-spine { width: 6px; height: 40px; border-radius: 2px; flex-shrink: 0; }
-    .book-info { flex: 1; min-width: 0; }
-    .book-title { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .book-author { font-family: system-ui, sans-serif; font-size: 12px; color: #888; margin-top: 2px; }
-    .genre-tag { font-family: system-ui, sans-serif; font-size: 11px; padding: 2px 8px; border-radius: 6px; background: #f0efe8; color: #555; border: 1px solid #e0dfd8; white-space: nowrap; }
-    .empty { font-family: system-ui, sans-serif; font-size: 14px; color: #888; padding: 2rem; text-align: center; }
-    .footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #e8e6df; font-family: system-ui, sans-serif; font-size: 12px; color: #aaa; }
-  </style>
-</head>
-<body>
-<div class="page">
-  <div class="header">
-    <div class="library-name">LocalLibrary</div>
-    <div class="library-sub">University of Lodz &mdash; Application Servers</div>
-    <nav>
-      <a href="/catalog/">Home</a>
-      <a href="/catalog/books/">All books</a>
-      <a href="/catalog/authors/">Authors</a>
-      <a href="/admin/">Admin</a>
-    </nav>
-  </div>
+{% extends "base_generic.html" %}
 
-  <form class="search-bar" method="get" action="/catalog/books/">
-    <input type="text" name="q" value="{{ query }}" placeholder="Search by title or author..." />
-    <button type="submit">Search</button>
-  </form>
+{% block title %}Books — LocalLibrary{% endblock %}
 
-  <div class="section-title">{% if query %}Results for "{{ query }}"{% else %}All books ({{ books|length }}){% endif %}</div>
-  <div class="book-list">
-    {% for book in books %}
-    <div class="book-row">
+{% block content %}
+  <div class="section-title">All books</div>
+  <div class="list-container">
+    {% for book in book_list %}
+    <div class="list-row">
       <div class="book-spine" style="background: {% cycle '#B5D4F4' '#9FE1CB' '#F5C4B3' '#FAC775' '#CECBF6' %}"></div>
       <div class="book-info">
-        <div class="book-title">{{ book.title }}</div>
+        <a href="{{ book.get_absolute_url }}" class="book-title">{{ book.title }}</a>
         <div class="book-author">{{ book.author }}</div>
       </div>
       <div class="genre-tag">{{ book.display_genre }}</div>
     </div>
     {% empty %}
-    <div class="empty">No books found.</div>
+    <div class="empty">No books found in the library.</div>
     {% endfor %}
   </div>
-  <div class="footer">LocalLibrary &mdash; University of Lodz</div>
-</div>
-</body>
-</html>
+{% endblock %}
