@@ -1,5 +1,6 @@
-import django
+﻿import django
 from django.shortcuts import render
+from django.http import JsonResponse
 from django.views import generic
 from .models import Book, BookInstance, Author, Genre
 
@@ -33,6 +34,22 @@ def index(request):
         'django_version': django.get_version(),
     }
     return render(request, 'catalog/index.html', context)
+
+def search_suggestions(request):
+    q = request.GET.get('q', '')
+    results = []
+    if len(q) > 0:
+        # Get matching authors
+        for a in Author.objects.filter(full_name__icontains=q)[:3]:
+            results.append({'text': a.full_name, 'type': 'Author', 'url': a.get_absolute_url()})
+        # Get matching books
+        for b in Book.objects.filter(title__icontains=q)[:3]:
+            results.append({'text': b.title, 'type': 'Book', 'url': b.get_absolute_url()})
+        # Get matching genres
+        for g in Genre.objects.filter(name__icontains=q)[:3]:
+            results.append({'text': g.name, 'type': 'Genre', 'url': f"/catalog/books/?q={g.name}"})
+            
+    return JsonResponse({'results': results})
 
 class BookListView(generic.ListView):
     model = Book
