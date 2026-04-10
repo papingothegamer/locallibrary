@@ -1,7 +1,19 @@
 ﻿{% extends "base_generic.html" %}
 
 {% block pre_content %}
-<div class="sky">
+<style>
+  body { overflow: hidden; } /* Prevents scrolling entirely */
+  .page { display: none !important; } /* Hides the standard content block on the homepage */
+</style>
+
+<div class="sky noselect">
+  <div style="position: absolute; top: 30px; width: 100%; display: flex; justify-content: center; gap: 40px; z-index: 20;">
+    <a href="{% url 'index' %}" class="nav-link">Home</a>
+    <a href="{% url 'books' %}" class="nav-link">All books</a>
+    <a href="{% url 'authors' %}" class="nav-link">Authors</a>
+    <a href="/admin/" class="nav-link">Admin</a>
+  </div>
+
   <div class="clouds">
     <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
     <div class="cloud c4"></div><div class="cloud c5"></div><div class="cloud c6"></div>
@@ -10,12 +22,12 @@
   
   <div class="blur-backdrop" id="searchBackdrop"></div>
 
-  <div style="text-align: center; color: #fff; padding-top: 12vh; position: relative; z-index: 10;">
-    <div style="font-family: system-ui, sans-serif; font-size: 12px; letter-spacing: 6px; text-transform: uppercase; margin-bottom: 10px; opacity: 0.9;">
-      A YEAR IN
+  <div style="text-align: center; color: #fff; padding-top: 15vh; position: relative; z-index: 10;">
+    <div style="font-family: system-ui, sans-serif; font-size: 12px; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 12px; opacity: 0.9;">
+      University of Lodz &mdash; Application Servers
     </div>
-    <div style="font-family: Georgia, serif; font-size: 68px; text-shadow: 0 4px 16px rgba(0,0,0,0.2);">
-      BOOKS OF 2025
+    <div style="font-family: Georgia, serif; font-size: 72px; text-shadow: 0 4px 16px rgba(0,0,0,0.2);">
+      LocalLibrary
     </div>
   </div>
 
@@ -24,12 +36,6 @@
       <input type="text" name="q" class="glass-input" id="searchInput" placeholder="Search books, authors, genres..." autocomplete="off">
       <div class="search-close" id="searchClose">&times;</div>
     </form>
-    <div class="autocomplete-dropdown">
-      <div style="padding: 15px; color: #888; font-family: system-ui; font-size: 14px; text-align: center;">
-        Type to see context-aware suggestions...<br>
-        <span style="font-size: 11px; opacity: 0.7;">(Hitting enter will take you to the filtered book list)</span>
-      </div>
-    </div>
   </div>
 
   <div class="stats-container">
@@ -67,7 +73,6 @@
 </div>
 
 <script>
-  // Handle the Search Focus and Blur Interaction
   const searchInput = document.getElementById('searchInput');
   const searchWrapper = document.getElementById('searchWrapper');
   const searchBackdrop = document.getElementById('searchBackdrop');
@@ -78,14 +83,12 @@
     searchBackdrop.classList.add('active');
   });
 
-  // Clicking the 'X' inside the search bar
   searchClose.addEventListener('click', () => {
     searchWrapper.classList.remove('active');
     searchBackdrop.classList.remove('active');
     searchInput.value = '';
   });
 
-  // Clicking the blurred background drops the focus
   searchBackdrop.addEventListener('click', () => {
     searchWrapper.classList.remove('active');
     searchBackdrop.classList.remove('active');
