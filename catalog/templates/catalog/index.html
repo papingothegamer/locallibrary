@@ -1,17 +1,47 @@
-{% extends "base_generic.html" %}
+﻿{% extends "base_generic.html" %}
 
 {% block pre_content %}
 <div class="sky">
   <div class="clouds">
     <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
     <div class="cloud c4"></div><div class="cloud c5"></div><div class="cloud c6"></div>
-    <div class="cloud c7"></div><div class="cloud c8"></div><div class="cloud c9"></div>
-    <div class="cloud c10"></div><div class="cloud c11"></div><div class="cloud c12"></div>
+    <div class="cloud c7"></div><div class="cloud c8"></div>
   </div>
   
-  <div style="text-align: center; color: #fff; padding-top: 50px; position: relative; z-index: 10;">
-    <div style="font-family: system-ui, sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px;">A Collection</div>
-    <div style="font-family: Georgia, serif; font-size: 42px; text-shadow: 0 2px 4px rgba(0,0,0,0.15);">BOOKS OF 2025</div>
+  <div class="blur-backdrop" id="searchBackdrop"></div>
+
+  <div style="text-align: center; color: #fff; padding-top: 12vh; position: relative; z-index: 10;">
+    <div style="font-family: system-ui, sans-serif; font-size: 12px; letter-spacing: 6px; text-transform: uppercase; margin-bottom: 10px; opacity: 0.9;">
+      A YEAR IN
+    </div>
+    <div style="font-family: Georgia, serif; font-size: 68px; text-shadow: 0 4px 16px rgba(0,0,0,0.2);">
+      BOOKS OF 2025
+    </div>
+  </div>
+
+  <div class="search-wrapper" id="searchWrapper">
+    <form method="get" action="{% url 'books' %}">
+      <input type="text" name="q" class="glass-input" id="searchInput" placeholder="Search books, authors, genres..." autocomplete="off">
+      <div class="search-close" id="searchClose">&times;</div>
+    </form>
+    <div class="autocomplete-dropdown">
+      <div style="padding: 15px; color: #888; font-family: system-ui; font-size: 14px; text-align: center;">
+        Type to see context-aware suggestions...<br>
+        <span style="font-size: 11px; opacity: 0.7;">(Hitting enter will take you to the filtered book list)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-container">
+    <div class="stats-group">
+      <div class="stat-block"><div class="stat-val">{{ num_books }}</div><div class="stat-lbl">Books</div></div>
+      <div class="stat-block"><div class="stat-val">{{ num_instances }}</div><div class="stat-lbl">Copies</div></div>
+    </div>
+    <div class="stats-group">
+      <div class="stat-block"><div class="stat-val">{{ num_instances_available }}</div><div class="stat-lbl">Available</div></div>
+      <div class="stat-block"><div class="stat-val">{{ num_authors }}</div><div class="stat-lbl">Authors</div></div>
+      <div class="stat-block"><div class="stat-val">{{ num_genres }}</div><div class="stat-lbl">Genres</div></div>
+    </div>
   </div>
 
   <div class="shelf-wrap">
@@ -19,35 +49,49 @@
       {% for book in shelf_books %}
       <div class="book" style="height:{{ book.spine_height }}px;">
         <div class="book-inner" style="background:{{ book.spine_color }};">
-          <span class="spine-text">{{ book.title }}</span>
+          <div class="spine-stars">{% cycle '****' '*****' '***' '****' '*****' %}</div>
+          <span class="spine-title">{{ book.title|upper }}</span>
+          <span class="spine-author">{{ book.author.full_name|slice:":10"|upper }}</span>
+          {% cycle '' '🤫' '' '🥚' '' '💀' '' '🔥' '' as sticker silent %}
+          {% if sticker %}<div class="spine-sticker">{{ sticker }}</div>{% endif %}
         </div>
         <div class="tooltip">
           <div class="tt-title">{{ book.title }}</div>
-          <div class="tt-author">{{ book.author }}</div>
+          <div class="tt-author">{{ book.author.full_name }}</div>
           <div class="tt-genre">{{ book.display_genre }}</div>
         </div>
-      </div>
-      {% empty %}
-      <div style="color:#fff;font-family:system-ui;font-size:13px;padding:1rem;">
-        No books yet.
       </div>
       {% endfor %}
     </div>
   </div>
 </div>
+
+<script>
+  // Handle the Search Focus and Blur Interaction
+  const searchInput = document.getElementById('searchInput');
+  const searchWrapper = document.getElementById('searchWrapper');
+  const searchBackdrop = document.getElementById('searchBackdrop');
+  const searchClose = document.getElementById('searchClose');
+
+  searchInput.addEventListener('focus', () => {
+    searchWrapper.classList.add('active');
+    searchBackdrop.classList.add('active');
+  });
+
+  // Clicking the 'X' inside the search bar
+  searchClose.addEventListener('click', () => {
+    searchWrapper.classList.remove('active');
+    searchBackdrop.classList.remove('active');
+    searchInput.value = '';
+  });
+
+  // Clicking the blurred background drops the focus
+  searchBackdrop.addEventListener('click', () => {
+    searchWrapper.classList.remove('active');
+    searchBackdrop.classList.remove('active');
+  });
+</script>
 {% endblock %}
 
 {% block content %}
-  <form class="search-bar" method="get" action="{% url 'books' %}">
-    <input type="text" name="q" placeholder="Search by title, author, or ISBN..." />
-    <button type="submit">Search</button>
-  </form>
-
-  <div class="stats-grid">
-    <div class="stat-card"><div class="stat-label">Books</div><div class="stat-value">{{ num_books }}</div></div>
-    <div class="stat-card"><div class="stat-label">Copies</div><div class="stat-value">{{ num_instances }}</div></div>
-    <div class="stat-card"><div class="stat-label">Available</div><div class="stat-value">{{ num_instances_available }}</div></div>
-    <div class="stat-card"><div class="stat-label">Authors</div><div class="stat-value">{{ num_authors }}</div></div>
-    <div class="stat-card"><div class="stat-label">Genres</div><div class="stat-value">{{ num_genres }}</div></div>
-  </div>
 {% endblock %}
