@@ -43,21 +43,33 @@ nav a:hover { background: #f0efe8; color: #1a1a1a; }
 
 /* -- Homepage Overhaul: Sky & Clouds -- */
 .sky { position: relative; width: 100%; height: 100vh; background: linear-gradient(to bottom, #4A83ED 0%, #4A83ED 60%, #6BA3F7 100%); overflow: hidden; }
-.clouds { position: absolute; top: 0; left: 0; width: 200%; height: 100%; animation: scroll-clouds 40s linear infinite; }
+.clouds { position: absolute; top: 0; left: 0; width: 200%; height: 100%; animation: scroll-clouds 45s linear infinite; }
 @keyframes scroll-clouds { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.cloud { position: absolute; background: #fff; border-radius: 50px; opacity: 0.95; }
-.cloud::before, .cloud::after { content: ''; position: absolute; background: #fff; border-radius: 50%; }
-.c1 { width:120px;height:38px;top:35px; left:60px; } .c1::before{width:58px;height:58px;top:-28px;left:14px;} .c1::after{width:40px;height:40px;top:-18px;left:54px;}
-.c2 { width:160px;height:44px;top:75px; left:280px; } .c2::before{width:72px;height:72px;top:-36px;left:18px;} .c2::after{width:50px;height:50px;top:-24px;left:82px;}
-.c3 { width:100px;height:32px;top:25px; left:560px; } .c3::before{width:48px;height:48px;top:-24px;left:10px;} .c3::after{width:34px;height:34px;top:-14px;left:44px;}
-.c4 { width:140px;height:40px;top:95px; left:780px; } .c4::before{width:64px;height:64px;top:-32px;left:16px;} .c4::after{width:44px;height:44px;top:-20px;left:68px;}
-.c5 { width:110px;height:36px;top:50px; left:1040px; } .c5::before{width:54px;height:54px;top:-27px;left:12px;} .c5::after{width:36px;height:36px;top:-16px;left:48px;}
-.c6 { width:150px;height:42px;top:15px; left:1260px; } .c6::before{width:68px;height:68px;top:-34px;left:20px;} .c6::after{width:46px;height:46px;top:-22px;left:74px;}
-.c7 { width:120px;height:38px;top:35px; left:1660px; } .c7::before{width:58px;height:58px;top:-28px;left:14px;} .c7::after{width:40px;height:40px;top:-18px;left:54px;}
-.c8 { width:160px;height:44px;top:75px; left:1880px; } .c8::before{width:72px;height:72px;top:-36px;left:18px;} .c8::after{width:50px;height:50px;top:-24px;left:82px;}
+.cloud { position: absolute; background: #ffffff; border-radius: 50px; opacity: 0.95; }
+.cloud::before, .cloud::after { content: ''; position: absolute; background: #ffffff; border-radius: 50%; }
+
+/* Lowered Clouds */
+.c1 { width:120px;height:38px;top:95px; left:60px; } .c1::before{width:58px;height:58px;top:-28px;left:14px;} .c1::after{width:40px;height:40px;top:-18px;left:54px;}
+.c2 { width:160px;height:44px;top:145px; left:280px; } .c2::before{width:72px;height:72px;top:-36px;left:18px;} .c2::after{width:50px;height:50px;top:-24px;left:82px;}
+.c3 { width:100px;height:32px;top:85px; left:560px; } .c3::before{width:48px;height:48px;top:-24px;left:10px;} .c3::after{width:34px;height:34px;top:-14px;left:44px;}
+.c4 { width:140px;height:40px;top:195px; left:780px; } .c4::before{width:64px;height:64px;top:-32px;left:16px;} .c4::after{width:44px;height:44px;top:-20px;left:68px;}
+.c5 { width:110px;height:36px;top:120px; left:1040px; } .c5::before{width:54px;height:54px;top:-27px;left:12px;} .c5::after{width:36px;height:36px;top:-16px;left:48px;}
+.c6 { width:150px;height:42px;top:75px; left:1260px; } .c6::before{width:68px;height:68px;top:-34px;left:20px;} .c6::after{width:46px;height:46px;top:-22px;left:74px;}
+.c7 { width:120px;height:38px;top:95px; left:1660px; } .c7::before{width:58px;height:58px;top:-28px;left:14px;} .c7::after{width:40px;height:40px;top:-18px;left:54px;}
+.c8 { width:160px;height:44px;top:145px; left:1880px; } .c8::before{width:72px;height:72px;top:-36px;left:18px;} .c8::after{width:50px;height:50px;top:-24px;left:82px;}
+.c9 { width:100px;height:32px;top:85px; left:2160px; } .c9::before{width:48px;height:48px;top:-24px;left:10px;} .c9::after{width:34px;height:34px;top:-14px;left:44px;}
+.c10{ width:140px;height:40px;top:195px; left:2380px; } .c10::before{width:64px;height:64px;top:-32px;left:16px;} .c10::after{width:44px;height:44px;top:-20px;left:68px;}
+.c11{ width:110px;height:36px;top:120px; left:2640px; } .c11::before{width:54px;height:54px;top:-27px;left:12px;} .c11::after{width:36px;height:36px;top:-16px;left:48px;}
+.c12{ width:150px;height:42px;top:75px; left:2860px; } .c12::before{width:68px;height:68px;top:-34px;left:20px;} .c12::after{width:46px;height:46px;top:-22px;left:74px;}
+
+/* Extra clouds for density */
+.c13{ width:130px;height:40px;top:250px; left:400px; } .c13::before{width:60px;height:60px;top:-30px;left:15px;} .c13::after{width:42px;height:42px;top:-20px;left:60px;}
+.c14{ width:90px;height:28px;top:290px; left:900px; } .c14::before{width:40px;height:40px;top:-20px;left:10px;} .c14::after{width:28px;height:28px;top:-12px;left:40px;}
+.c15{ width:130px;height:40px;top:250px; left:2000px; } .c15::before{width:60px;height:60px;top:-30px;left:15px;} .c15::after{width:42px;height:42px;top:-20px;left:60px;}
+.c16{ width:90px;height:28px;top:290px; left:2500px; } .c16::before{width:40px;height:40px;top:-20px;left:10px;} .c16::after{width:28px;height:28px;top:-12px;left:40px;}
 
 /* -- Homepage Overhaul: Nav Links -- */
-.nav-link { color: #fff; text-decoration: none; font-family: system-ui, sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.8; transition: opacity 0.2s; pointer-events: all; }
+.nav-link { color: #ffffff; text-decoration: none; font-family: system-ui, sans-serif; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.95; text-shadow: 0 2px 4px rgba(0,0,0,0.3); transition: opacity 0.2s; pointer-events: all; }
 .nav-link:hover { opacity: 1; text-decoration: underline; text-underline-offset: 4px; }
 
 /* -- Homepage Overhaul: Glassmorphic Search & Blur -- */
@@ -66,23 +78,25 @@ nav a:hover { background: #f0efe8; color: #1a1a1a; }
 
 .search-wrapper { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 450px; z-index: 50; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: all; }
 .search-wrapper.active { width: 600px; }
-.glass-input { width: 100%; padding: 18px 24px; border-radius: 40px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4); color: #fff; font-family: Georgia, serif; font-size: 18px; outline: none; box-shadow: 0 8px 32px rgba(0,0,0,0.1); backdrop-filter: blur(5px); transition: all 0.3s ease; }
-.glass-input::placeholder { color: rgba(255,255,255,0.7); }
-.glass-input:focus { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.9); box-shadow: 0 0 30px rgba(255,255,255,0.4); }
+.glass-input { width: 100%; padding: 18px 24px; border-radius: 40px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.6); color: #ffffff; font-family: Georgia, serif; font-size: 18px; outline: none; box-shadow: 0 8px 32px rgba(0,0,0,0.15); backdrop-filter: blur(5px); transition: all 0.3s ease; text-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.glass-input::placeholder { color: rgba(255,255,255,0.85); text-shadow: none; }
+.glass-input:focus { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,1); box-shadow: 0 0 30px rgba(255,255,255,0.5); }
 
 .search-close { position: absolute; right: 20px; top: 18px; color: #fff; cursor: pointer; font-family: system-ui; font-weight: bold; font-size: 22px; display: none; }
 .search-wrapper.active .search-close { display: block; }
 
 /* -- Homepage Overhaul: Vertical Stats Flanking Shelf -- */
-.stats-container { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 1200px; display: flex; justify-content: space-between; padding: 0 6vw; pointer-events: none; z-index: 10; }
+/* Pushed further out to the margins */
+.stats-container { position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 1500px; display: flex; justify-content: space-between; padding: 0 4vw; pointer-events: none; z-index: 10; }
 .stats-group { display: flex; flex-direction: column; gap: 25px; }
-.stat-block { text-align: center; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,0.3); }
-.stat-val { font-family: Georgia, serif; font-size: 42px; line-height: 1; }
-.stat-lbl { font-family: system-ui, sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.85; margin-top: 6px; }
+.stat-block { text-align: center; color: #ffffff; text-shadow: 0 3px 8px rgba(0,0,0,0.4); }
+.stat-val { font-family: Georgia, serif; font-size: 42px; line-height: 1; font-weight: normal; }
+.stat-lbl { font-family: system-ui, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; opacity: 1; margin-top: 6px; }
 
 /* -- Homepage Overhaul: Detailed Shelf & Scaling -- */
 .shelf-wrap { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 750px; z-index: 5; }
-.shelf { display: flex; align-items: flex-end; gap: 4px; padding: 0 10px; position: relative; justify-content: center; transform: scale(1.25); transform-origin: bottom center; }
+/* Scaled up heavily (1.45) to avoid tooltip clashing with other elements */
+.shelf { display: flex; align-items: flex-end; gap: 4px; padding: 0 10px; position: relative; justify-content: center; transform: scale(1.45); transform-origin: bottom center; }
 .shelf::after { content: ''; position: absolute; bottom: -9px; left: 0; right: 0; height: 9px; background: #1a2230; border-radius: 2px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
 
 /* Varying Book Widths */
@@ -96,15 +110,15 @@ nav a:hover { background: #f0efe8; color: #1a1a1a; }
 
 /* Detailed Spines */
 .book-inner { width: 100%; height: 100%; border-radius: 3px 3px 0 0; display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 8px 0; position: relative; overflow: hidden; box-shadow: inset -4px 0 8px rgba(0,0,0,0.1), 2px 0 4px rgba(0,0,0,0.15); }
-.spine-stars { font-size: 7px; color: rgba(255,255,255,0.7); letter-spacing: 1px; margin-bottom: auto; }
-.spine-title { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); font-size: 9px; font-family: system-ui, sans-serif; font-weight: 600; color: rgba(255,255,255,0.95); text-shadow: 0 1px 2px rgba(0,0,0,0.3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-height: 55%; letter-spacing: 0.5px; margin: 10px 0; }
-.spine-author { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 7px; font-family: system-ui, sans-serif; text-transform: uppercase; color: rgba(255,255,255,0.6); letter-spacing: 1px; margin-top: auto; }
+.spine-stars { font-size: 7px; color: rgba(255,255,255,0.8); letter-spacing: 1px; margin-bottom: auto; }
+.spine-title { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); font-size: 9px; font-family: system-ui, sans-serif; font-weight: 600; color: #ffffff; text-shadow: 0 1px 3px rgba(0,0,0,0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-height: 55%; letter-spacing: 0.5px; margin: 10px 0; }
+.spine-author { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 7px; font-family: system-ui, sans-serif; text-transform: uppercase; color: rgba(255,255,255,0.8); font-weight: bold; letter-spacing: 1px; margin-top: auto; }
 .spine-sticker { position: absolute; right: -4px; top: 40%; font-size: 16px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); z-index: 10; }
 
 /* Tooltip */
 .tooltip { display: none; position: absolute; bottom: calc(100% + 18px); left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.98); border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; width: 175px; box-shadow: 0 4px 18px rgba(0,0,0,0.14); z-index: 20; pointer-events: none; text-align: left; }
 .tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 7px solid transparent; border-top-color: #ddd; }
 .book:hover .tooltip { display: block; }
-.tt-title { font-size: 12px; font-weight: 500; color: #1a1a1a; margin-bottom: 3px; line-height: 1.35; }
-.tt-author { font-size: 11px; color: #666; font-style: italic; margin-bottom: 6px; }
-.tt-genre { font-size: 10px; background: #f0efe8; color: #555; padding: 2px 7px; border-radius: 4px; display: inline-block; border: 1px solid #e0dfd8; }
+.tt-title { font-size: 12px; font-weight: 500; color: #1a1a1a; margin-bottom: 3px; line-height: 1.35; text-shadow: none; }
+.tt-author { font-size: 11px; color: #666; font-style: italic; margin-bottom: 6px; text-shadow: none; }
+.tt-genre { font-size: 10px; background: #f0efe8; color: #555; padding: 2px 7px; border-radius: 4px; display: inline-block; border: 1px solid #e0dfd8; text-shadow: none; }
