@@ -24,6 +24,16 @@ def index(request):
         book.spine_height = SPINE_HEIGHTS[i % len(SPINE_HEIGHTS)]
         shelf_books.append(book)
 
+    # --- LECTURE REQUIREMENT: Session Visit Counter ---
+    request.session.set_test_cookie()
+    if request.session.test_cookie_worked():
+        request.session.delete_test_cookie()
+        num_visits = request.session.get('num_visits', 0)
+        request.session['num_visits'] = num_visits + 1
+    else:
+        num_visits = -1
+    # --------------------------------------------------
+
     context = {
         'num_books': Book.objects.count(),
         'num_instances': BookInstance.objects.count(),
@@ -31,6 +41,7 @@ def index(request):
         'num_authors': Author.objects.count(),
         'num_genres': Genre.objects.count(),
         'shelf_books': shelf_books,
+        'num_visits': num_visits,
         'django_version': django.get_version(),
     }
     return render(request, 'catalog/index.html', context)
@@ -39,13 +50,10 @@ def search_suggestions(request):
     q = request.GET.get('q', '')
     results = []
     if len(q) > 0:
-        # Get matching authors
         for a in Author.objects.filter(full_name__icontains=q)[:3]:
             results.append({'text': a.full_name, 'type': 'Author', 'url': a.get_absolute_url()})
-        # Get matching books
         for b in Book.objects.filter(title__icontains=q)[:3]:
             results.append({'text': b.title, 'type': 'Book', 'url': b.get_absolute_url()})
-        # Get matching genres
         for g in Genre.objects.filter(name__icontains=q)[:3]:
             results.append({'text': g.name, 'type': 'Genre', 'url': f"/catalog/books/?q={g.name}"})
             

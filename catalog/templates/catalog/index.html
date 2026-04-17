@@ -2,8 +2,8 @@
 
 {% block pre_content %}
 <style>
-  body { overflow: hidden; } /* Prevents scrolling entirely */
-  .page { display: none !important; } /* Hides the standard content block on the homepage */
+  body { overflow: hidden; }
+  .page { display: none !important; }
 </style>
 
 <div class="sky noselect">
@@ -38,12 +38,14 @@
       <input type="text" name="q" class="glass-input" id="searchInput" placeholder="Search books, authors, genres..." autocomplete="off">
       <div class="search-close" id="searchClose">&times;</div>
     </form>
-    
     <div class="autocomplete-dropdown" id="dropdown" style="display: none;"></div>
   </div>
 
   <div class="stats-container">
     <div class="stats-group">
+      {% if num_visits >= 0 %}
+      <div class="stat-block"><div class="stat-val">{{ num_visits }}</div><div class="stat-lbl">Visit{{ num_visits|pluralize }}</div></div>
+      {% endif %}
       <div class="stat-block"><div class="stat-val">{{ num_books }}</div><div class="stat-lbl">Books</div></div>
       <div class="stat-block"><div class="stat-val">{{ num_instances }}</div><div class="stat-lbl">Copies</div></div>
     </div>
@@ -86,7 +88,6 @@
   searchInput.addEventListener('focus', () => {
     searchWrapper.classList.add('active');
     searchBackdrop.classList.add('active');
-    // Only show dropdown if there is text
     if (searchInput.value.length > 0) {
       dropdown.style.display = 'block';
     }
@@ -105,11 +106,10 @@
     searchBackdrop.classList.remove('active');
   });
 
-  // AJAX Context-Aware Search Logic
   searchInput.addEventListener('input', async (e) => {
     const query = e.target.value;
     if (query.length > 0) {
-      dropdown.style.display = 'block'; // Unhide box when typing
+      dropdown.style.display = 'block';
       try {
         const response = await fetch(`/catalog/search-suggestions/?q=${encodeURIComponent(query)}`);
         const data = await response.json();
@@ -128,7 +128,7 @@
         console.error("Search failed:", err);
       }
     } else {
-      dropdown.style.display = 'none'; // Hide box if input is empty
+      dropdown.style.display = 'none';
       dropdown.innerHTML = '';
     }
   });
