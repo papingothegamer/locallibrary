@@ -26,6 +26,15 @@ class Book(models.Model):
     genre = models.ManyToManyField(Genre, help_text="Select a genre for this book")
     language = models.CharField(max_length=200, null=True)
 
+    # Deterministic visual properties
+    def get_spine_color(self):
+        colors = ['#2E4057', '#E76F51', '#2A9D8F', '#E9C46A', '#9B5DE5', '#F72585', '#4361EE', '#F4A261', '#264653', '#A8DADC', '#C77DFF', '#06D6A0', '#EF233C', '#FB8500', '#3A86FF', '#8338EC', '#FF006E', '#FFBE0B', '#3D405B', '#81B29A']
+        return colors[(self.id or 0) % len(colors)]
+
+    def get_spine_height(self):
+        heights = [155, 170, 145, 180, 160, 140, 175, 150, 165, 185, 148, 172, 158, 142, 168, 178, 153, 163, 147, 182]
+        return heights[(self.id or 0) % len(heights)]
+
     def __str__(self): return self.title
     def get_absolute_url(self): return reverse('book-detail', args=[str(self.id)])
     def display_genre(self): return ', '.join(genre.name for genre in self.genre.all()[:3])
