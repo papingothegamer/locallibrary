@@ -4,6 +4,8 @@ from django.http import JsonResponse
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse_lazy
 from .models import Book, BookInstance, Author, Genre
 from datetime import date, timedelta
 
@@ -13,9 +15,10 @@ SPINE_HEIGHTS = [155, 170, 145, 180, 160, 140, 175, 150, 165, 185, 148, 172, 158
 def index(request):
     books = Book.objects.all().order_by('id')
     shelf_books = []
-    for i, book in enumerate(books):
-        book.spine_color = SPINE_COLORS[i % len(SPINE_COLORS)]
-        book.spine_height = SPINE_HEIGHTS[i % len(SPINE_HEIGHTS)]
+    for book in books:
+        # We use the ID to guarantee the color is perfectly consistent across the app
+        book.spine_color = SPINE_COLORS[(book.id or 0) % len(SPINE_COLORS)]
+        book.spine_height = SPINE_HEIGHTS[(book.id or 0) % len(SPINE_HEIGHTS)]
         shelf_books.append(book)
 
     request.session.set_test_cookie()
@@ -70,9 +73,19 @@ def return_book(request, pk):
         copy.save()
     return redirect('my-borrowed')
 
+class SignUpView(generic.CreateView):
+    form_class = UserCreationForm
+    success_url = reverse_lazy('login')
+    template_name = 'registration/signup.html'
+
 class BookListView(generic.ListView):
     model = Book
     paginate_by = 10
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        for book in context['book_list']:
+            book.spine_color = SPINE_COLORS[(book.id or 0) % len(SPINE_COLORS)]
+        return context
 
 class BookDetailView(generic.DetailView):
     model = Book
@@ -80,6 +93,7 @@ class BookDetailView(generic.DetailView):
         context = super().get_context_data(**kwargs)
         context['available_copies'] = self.object.bookinstance_set.filter(status='a').count()
         context['similar_books'] = Book.objects.filter(genre__in=self.object.genre.all()).exclude(pk=self.object.pk).distinct()[:3]
+        self.object.spine_color = SPINE_COLORS[(self.object.id or 0) % len(SPINE_COLORS)]
         return context
 
 class AuthorListView(generic.ListView):
@@ -91,6 +105,8 @@ class AuthorDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['similar_authors'] = Author.objects.exclude(pk=self.object.pk).order_by('?')[:3]
+        for book in self.object.book_set.all():
+            book.spine_color = SPINE_COLORS[(book.id or 0) % len(SPINE_COLORS)]
         return context
 
 class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
@@ -99,11 +115,9 @@ class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
     paginate_by = 10
     def get_queryset(self):
         return BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o').order_by('due_back')
-
-from django.contrib.auth.forms import UserCreationForm
-from django.urls import reverse_lazy
-
-class SignUpView(generic.CreateView):
-    form_class = UserCreationForm
-    success_url = reverse_lazy('login')
-    template_name = 'registration/signup.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        for inst in context['bookinstance_list']:
+            if inst.book:
+                inst.book.spine_color = SPINE_COLORS[(inst.book.id or 0) % len(SPINE_COLORS)]
+        return context
