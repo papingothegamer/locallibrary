@@ -9,7 +9,20 @@ from django.urls import reverse_lazy
 from .models import Book, BookInstance, Author, Genre
 from datetime import date, timedelta
 
+SPINE_COLORS = ['#2E4057', '#E76F51', '#2A9D8F', '#E9C46A', '#9B5DE5', '#F72585', '#4361EE', '#F4A261', '#264653', '#A8DADC', '#C77DFF', '#06D6A0', '#EF233C', '#FB8500', '#3A86FF', '#8338EC', '#FF006E', '#FFBE0B', '#3D405B', '#81B29A']
+SPINE_HEIGHTS = [155, 170, 145, 180, 160, 140, 175, 150, 165, 185, 148, 172, 158, 142, 168, 178, 153, 163, 147, 182]
+
+def attach_book_colors(books):
+    """Utility to attach colors dynamically without altering the database models."""
+    for book in books:
+        book.spine_color = SPINE_COLORS[(book.id or 0) % len(SPINE_COLORS)]
+        book.spine_height = SPINE_HEIGHTS[(book.id or 0) % len(SPINE_HEIGHTS)]
+    return books
+
 def index(request):
+    shelf_books = list(Book.objects.all().order_by('id'))
+    attach_book_colors(shelf_books)
+
     request.session.set_test_cookie()
     if request.session.test_cookie_worked():
         request.session.delete_test_cookie()
@@ -24,7 +37,7 @@ def index(request):
         'num_instances_available': BookInstance.objects.filter(status='a').count(),
         'num_authors': Author.objects.count(),
         'num_genres': Genre.objects.count(),
-        'shelf_books': Book.objects.all().order_by('id'),
+        'shelf_books': shelf_books,
         'num_visits': num_visits,
     }
     return render(request, 'catalog/index.html', context)
@@ -70,13 +83,20 @@ class SignUpView(generic.CreateView):
 class BookListView(generic.ListView):
     model = Book
     paginate_by = 10
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        attach_book_colors(context['book_list'])
+        return context
 
 class BookDetailView(generic.DetailView):
     model = Book
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['available_copies'] = self.object.bookinstance_set.filter(status='a').count()
-        context['similar_books'] = Book.objects.filter(genre__in=self.object.genre.all()).exclude(pk=self.object.pk).distinct()[:3]
+        
+        sim_books = list(Book.objects.filter(genre__in=self.object.genre.all()).exclude(pk=self.object.pk).distinct()[:3])
+        context['similar_books'] = attach_book_colors(sim_books)
+        attach_book_colors([self.object])
         return context
 
 class AuthorListView(generic.ListView):
@@ -88,6 +108,8 @@ class AuthorDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['similar_authors'] = Author.objects.exclude(pk=self.object.pk).order_by('?')[:3]
+        # We explicitly pass 'author_books' so the template doesn't re-query the database
+        context['author_books'] = attach_book_colors(list(self.object.book_set.all()))
         return context
 
 class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
@@ -96,3 +118,8 @@ class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
     paginate_by = 10
     def get_queryset(self):
         return BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o').order_by('due_back')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        for inst in context['bookinstance_list']:
+            if inst.book: attach_book_colors([inst.book])
+        return context

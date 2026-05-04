@@ -1,11 +1,10 @@
 ﻿{% extends "base_generic.html" %}
-
 {% block content %}
 <div class="glass-card">
     <div class="section-title">My Reading Desk</div>
     {% if bookinstance_list %}
       {% for bookinst in bookinstance_list %}
-      <div class="list-row">
+      <div class="list-row" style="border-left: 8px solid {{ bookinst.book.spine_color }}; padding-left: 15px; border-radius: 4px;">
         <div>
           <a href="{% url 'book-detail' bookinst.book.pk %}" class="list-title">{{bookinst.book.title}}</a>
           <div class="list-subtitle {% if bookinst.is_overdue %}text-danger{% else %}text-success{% endif %}">

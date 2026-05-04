@@ -1,7 +1,6 @@
 ﻿{% extends "base_generic.html" %}
-
 {% block content %}
-<div class="breadcrumbs"><a href="{% url 'authors' %}"\>&larr; Back to Authors</a></div>
+<div class="breadcrumbs"><a href="{% url 'authors' %}">&larr; Back to Authors</a></div>
 <div class="glass-card">
   <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; text-align: center;">{{ author.full_name }}</h1>
   <p style="text-align: center; color: #666; font-family: system-ui; font-size: 14px;">
@@ -12,8 +11,8 @@
   <p style="line-height: 1.6; margin-top: 5px;">{{ author.bio|default:"Biography not available at this time." }}</p>
 
   <div class="meta-lbl" style="margin-top: 2rem; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Published Works ({{ author.book_set.count }})</div>
-  {% for book in author.book_set.all %}
-    <div class="list-row">
+  {% for book in author_books %}
+    <div class="list-row" style="border-left: 8px solid {{ book.spine_color }}; padding-left: 15px; border-radius: 4px;">
       <div>
         <a href="{{ book.get_absolute_url }}" class="list-title">{{ book.title }}</a>
         <div class="list-subtitle">{{ book.display_genre }}</div>
@@ -35,4 +34,3 @@
   {% endif %}
 </div>
 {% endblock %}
-

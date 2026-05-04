@@ -8,10 +8,9 @@
       <button onclick="toggleView('grid')" id="btnGrid" class="btn-view">Grid</button>
     </div>
   </div>
-
   <div id="listContainer" class="view-list">
     {% for book in book_list %}
-      <div class="list-row">
+      <div class="list-row" style="border-left: 8px solid {{ book.spine_color }}; padding-left: 15px; border-radius: 4px;">
         <div>
           <a href="{{ book.get_absolute_url }}" class="list-title">{{ book.title }}</a>
           <div class="list-subtitle">By {{ book.author.full_name }}</div>
@@ -23,31 +22,21 @@
     {% endfor %}
   </div>
 </div>
-
 <script>
   function toggleView(viewType) {
     const container = document.getElementById('listContainer');
     const btnGrid = document.getElementById('btnGrid');
     const btnList = document.getElementById('btnList');
-    
     if (viewType === 'grid') {
-      container.classList.remove('view-list');
-      container.classList.add('view-grid');
-      btnGrid.classList.add('active');
-      btnList.classList.remove('active');
+      container.classList.remove('view-list'); container.classList.add('view-grid');
+      btnGrid.classList.add('active'); btnList.classList.remove('active');
       localStorage.setItem('catalogView', 'grid');
     } else {
-      container.classList.remove('view-grid');
-      container.classList.add('view-list');
-      btnList.classList.add('active');
-      btnGrid.classList.remove('active');
+      container.classList.remove('view-grid'); container.classList.add('view-list');
+      btnList.classList.add('active'); btnGrid.classList.remove('active');
       localStorage.setItem('catalogView', 'list');
     }
   }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const savedView = localStorage.getItem('catalogView') || 'list';
-    toggleView(savedView);
-  });
+  document.addEventListener('DOMContentLoaded', () => { toggleView(localStorage.getItem('catalogView') || 'list'); });
 </script>
 {% endblock %}

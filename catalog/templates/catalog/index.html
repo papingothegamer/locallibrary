@@ -42,8 +42,8 @@
   <div class="shelf-wrap">
     <div class="shelf">
       {% for book in shelf_books %}
-      <div class="book" style="height:{{ book.get_spine_height }}px;">
-        <div class="book-inner" style="background:{{ book.get_spine_color }};">
+      <div class="book" style="height:{{ book.spine_height }}px;">
+        <div class="book-inner" style="background:{{ book.spine_color }};">
           <div class="spine-stars">{% cycle '****' '*****' '***' '****' '*****' %}</div>
           <span class="spine-title">{{ book.title|upper }}</span>
           <span class="spine-author">{{ book.author.full_name|slice:":10"|upper }}</span>
@@ -106,3 +106,4 @@
   });
 </script>
 {% endblock %}
+

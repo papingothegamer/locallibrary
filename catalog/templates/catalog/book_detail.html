@@ -1,14 +1,13 @@
 ﻿{% extends "base_generic.html" %}
-
 {% block content %}
-<div class="breadcrumbs"><a href="{% url 'books' %}"\>&larr; Back to Catalog</a></div>
+<div class="breadcrumbs"><a href="{% url 'books' %}">&larr; Back to Catalog</a></div>
 <div class="glass-card">
   <div class="detail-grid">
     <div>
-      <div style="width: 160px; height: 240px; background: #2E4057; border-radius: 4px; box-shadow: inset -5px 0 10px rgba(0,0,0,0.2), 5px 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; color: white; font-family: Georgia; margin: 0 auto;">
+      <div style="width: 160px; height: 240px; background: {{ book.spine_color }}; position: relative; border-radius: 4px; box-shadow: inset -5px 0 10px rgba(0,0,0,0.2), 5px 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; color: white; font-family: Georgia; margin: 0 auto;">
+        <div style="position: absolute; left: 12px; top: 0; bottom: 0; width: 3px; background: rgba(255,255,255,0.15);"></div>
         <h2>{{ book.title }}</h2>
       </div>
-      
       <div style="text-align: center; margin-top: 2rem;">
         {% if user.is_authenticated %}
             {% if available_copies > 0 %}
@@ -25,21 +24,17 @@
         {% endif %}
       </div>
     </div>
-
     <div>
       <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">{{ book.title }}</h1>
       <a href="{{ book.author.get_absolute_url }}" style="color: #4A83ED; font-size: 1.2rem; text-decoration: none; font-weight: bold;">{{ book.author.full_name }}</a>
-      
       <div class="meta-lbl">Synopsis</div>
       <p style="line-height: 1.6; margin-top: 5px;">{{ book.summary }}</p>
-
       <div class="meta-lbl">Metadata</div>
       <p style="font-family: system-ui; font-size: 13px; color: #555; margin-top: 5px;">
         <strong>ISBN:</strong> {{ book.isbn }}<br>
         <strong>Language:</strong> {{ book.language }}<br>
         <strong>Genres:</strong> {{ book.display_genre }}
       </p>
-
       {% if similar_books %}
         <div class="meta-lbl" style="margin-top: 2rem; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Similar Books</div>
         <ul style="list-style: none; padding: 0; margin-top: 10px;">
@@ -55,4 +50,3 @@
   </div>
 </div>
 {% endblock %}
-
