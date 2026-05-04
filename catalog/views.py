@@ -1,4 +1,4 @@
-﻿import django
+﻿import time
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views import generic
@@ -26,8 +26,17 @@ def index(request):
     request.session.set_test_cookie()
     if request.session.test_cookie_worked():
         request.session.delete_test_cookie()
+        
+        # --- Intelligent Visit Counter Logic ---
         num_visits = request.session.get('num_visits', 0)
-        request.session['num_visits'] = num_visits + 1
+        last_visit_time = request.session.get('last_visit_time', 0)
+        current_time = time.time()
+        
+        # Only count as a new visit if it's been more than 1 hour (3600 seconds)
+        if current_time - last_visit_time > 3600:
+            num_visits += 1
+            request.session['num_visits'] = num_visits
+            request.session['last_visit_time'] = current_time
     else:
         num_visits = -1
 
@@ -108,7 +117,6 @@ class AuthorDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['similar_authors'] = Author.objects.exclude(pk=self.object.pk).order_by('?')[:3]
-        # We explicitly pass 'author_books' so the template doesn't re-query the database
         context['author_books'] = attach_book_colors(list(self.object.book_set.all()))
         return context
 
