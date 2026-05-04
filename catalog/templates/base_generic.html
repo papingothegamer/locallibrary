@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>{% block title %}LocalLibrary{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=4">
 </head>
 <body class="bg-sky">
   
@@ -26,6 +26,7 @@
       </form>
     {% else %}
       <a href="{% url 'login' %}?next={{request.path}}" class="nav-link">Login</a>
+      <a href="{% url 'signup' %}" class="nav-link" style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.5);">Sign Up</a>
     {% endif %}
   </div>
 

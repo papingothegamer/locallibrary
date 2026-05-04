@@ -1,0 +1,20 @@
+﻿{% extends "base_generic.html" %}
+
+{% block content %}
+<div class="auth-wrapper" style="max-width: 450px;">
+  <div class="auth-card">
+    <h2>Join LocalLibrary</h2>
+    
+    <form method="post" action="{% url 'signup' %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      
+      <button type="submit" class="btn-action btn-auth" style="background: #06D6A0; box-shadow: 0 4px 12px rgba(6, 214, 160, 0.3);">Create Account</button>
+    </form>
+    
+    <div style="margin-top: 20px; font-family: system-ui; font-size: 13px; color: #666; border-top: 1px solid #eee; padding-top: 15px;">
+      Already have an account? <a href="{% url 'login' %}" class="auth-link">Log in</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

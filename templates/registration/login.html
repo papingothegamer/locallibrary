@@ -1,16 +1,27 @@
 ﻿{% extends "base_generic.html" %}
+
 {% block content %}
-  <div class="section-title">Login</div>
-  {% if form.errors %}
-    <p style="color: red;">Your username and password didn't match. Please try again.</p>
-  {% endif %}
-  <form method="post" action="{% url 'login' %}" style="background: #fff; padding: 2rem; border: 1px solid #e8e6df; border-radius: 10px;">
-    {% csrf_token %}
-    <table style="margin-bottom: 1rem;">
-      <tr><td>{{ form.username.label_tag }}</td><td>{{ form.username }}</td></tr>
-      <tr><td>{{ form.password.label_tag }}</td><td>{{ form.password }}</td></tr>
-    </table>
-    <input type="submit" value="Login" style="padding: 8px 16px; background: #4A83ED; color: white; border: none; border-radius: 6px; cursor: pointer;" />
-    <input type="hidden" name="next" value="{{ next }}" />
-  </form>
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <h2>Welcome Back</h2>
+    
+    {% if form.errors %}
+      <div style="background: #FFEBEB; color: #EF233C; padding: 10px; border-radius: 6px; font-family: system-ui; font-size: 13px; margin-bottom: 15px;">
+        Your username and password didn't match. Please try again.
+      </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      
+      <button type="submit" class="btn-action btn-auth">Log In</button>
+      <input type="hidden" name="next" value="{{ next|default:'/' }}" />
+    </form>
+    
+    <div style="margin-top: 20px; font-family: system-ui; font-size: 13px; color: #666; border-top: 1px solid #eee; padding-top: 15px;">
+      Don't have an account? <a href="{% url 'signup' %}" class="auth-link">Sign up here</a>
+    </div>
+  </div>
+</div>
 {% endblock %}
