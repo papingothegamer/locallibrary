@@ -1,21 +1,17 @@
 ﻿{% extends "base_generic.html" %}
-
-{% block title %}Books &mdash; LocalLibrary{% endblock %}
-
 {% block content %}
-  <div class="section-title">All books</div>
-  <div class="list-container">
-    {% for book in book_list %}
+<div class="glass-card">
+  <div class="section-title">Library Catalog</div>
+  {% for book in book_list %}
     <div class="list-row">
-      <div class="book-spine" style="background: {% cycle '#B5D4F4' '#9FE1CB' '#F5C4B3' '#FAC775' '#CECBF6' %}"></div>
-      <div class="book-info">
-        <a href="{{ book.get_absolute_url }}" class="book-title">{{ book.title }}</a>
-        <div class="book-author">{{ book.author }}</div>
+      <div>
+        <a href="{{ book.get_absolute_url }}" class="list-title">{{ book.title }}</a>
+        <div class="list-subtitle">By {{ book.author.full_name }}</div>
       </div>
       <div class="genre-tag">{{ book.display_genre }}</div>
     </div>
-    {% empty %}
+  {% empty %}
     <div class="empty">No books found in the library.</div>
-    {% endfor %}
-  </div>
+  {% endfor %}
+</div>
 {% endblock %}

@@ -1,0 +1,21 @@
+﻿{% extends "base_generic.html" %}
+{% block content %}
+    <div class="section-title">All Borrowed Books (Librarian View)</div>
+    {% if bookinstance_list %}
+    <div class="list-container">
+      {% for bookinst in bookinstance_list %}
+      <div class="list-row">
+        <div class="book-info">
+          <a href="{% url 'book-detail' bookinst.book.pk %}" class="book-title">{{bookinst.book.title}}</a>
+          <div class="book-author">Borrower: {{ bookinst.borrower.username|default:"Unknown" }}</div>
+          <div class="book-author {% if bookinst.is_overdue %}text-danger{% else %}text-success{% endif %}">
+            Due back: {{ bookinst.due_back }} {% if bookinst.is_overdue %}(OVERDUE){% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      <p>There are no books borrowed.</p>
+    {% endif %}
+{% endblock %}

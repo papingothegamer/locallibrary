@@ -1,21 +1,17 @@
 ﻿{% extends "base_generic.html" %}
-
-{% block title %}Authors &mdash; LocalLibrary{% endblock %}
-
 {% block content %}
-  <div class="section-title">Authors</div>
-  <div class="list-container">
-    {% for author in author_list %}
+<div class="glass-card">
+  <div class="section-title">Library Authors</div>
+  {% for author in author_list %}
     <div class="list-row">
-      <div class="initials">{{ author.full_name|slice:":2"|upper }}</div>
-      <a href="{{ author.get_absolute_url }}" class="author-name">{{ author.full_name }}</a>
-      <div class="author-dates">
-        {{ author.date_of_birth|date:"Y"|default:"?" }} &ndash; {{ author.date_of_death|date:"Y"|default:"Present" }}
+      <div>
+        <a href="{{ author.get_absolute_url }}" class="list-title">{{ author.full_name }}</a>
+        <div class="list-subtitle">{{ author.date_of_birth|date:"Y"|default:"?" }} &ndash; {{ author.date_of_death|date:"Y"|default:"Present" }}</div>
       </div>
       <div class="book-count">{{ author.book_set.count }} book{{ author.book_set.count|pluralize }}</div>
     </div>
-    {% empty %}
+  {% empty %}
     <div class="empty">No authors found.</div>
-    {% endfor %}
-  </div>
+  {% endfor %}
+</div>
 {% endblock %}

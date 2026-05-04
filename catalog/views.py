@@ -1,20 +1,14 @@
 ﻿import django
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views import generic
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from .models import Book, BookInstance, Author, Genre
+from datetime import date, timedelta
 
-SPINE_COLORS = [
-    '#2E4057', '#E76F51', '#2A9D8F', '#E9C46A', '#9B5DE5',
-    '#F72585', '#4361EE', '#F4A261', '#264653', '#A8DADC',
-    '#C77DFF', '#06D6A0', '#EF233C', '#FB8500', '#3A86FF',
-    '#8338EC', '#FF006E', '#FFBE0B', '#3D405B', '#81B29A',
-]
-
-SPINE_HEIGHTS = [
-    155, 170, 145, 180, 160, 140, 175, 150, 165, 185,
-    148, 172, 158, 142, 168, 178, 153, 163, 147, 182,
-]
+SPINE_COLORS = ['#2E4057', '#E76F51', '#2A9D8F', '#E9C46A', '#9B5DE5', '#F72585', '#4361EE', '#F4A261', '#264653', '#A8DADC', '#C77DFF', '#06D6A0', '#EF233C', '#FB8500', '#3A86FF', '#8338EC', '#FF006E', '#FFBE0B', '#3D405B', '#81B29A']
+SPINE_HEIGHTS = [155, 170, 145, 180, 160, 140, 175, 150, 165, 185, 148, 172, 158, 142, 168, 178, 153, 163, 147, 182]
 
 def index(request):
     books = Book.objects.all().order_by('id')
@@ -24,7 +18,6 @@ def index(request):
         book.spine_height = SPINE_HEIGHTS[i % len(SPINE_HEIGHTS)]
         shelf_books.append(book)
 
-    # --- LECTURE REQUIREMENT: Session Visit Counter ---
     request.session.set_test_cookie()
     if request.session.test_cookie_worked():
         request.session.delete_test_cookie()
@@ -32,7 +25,6 @@ def index(request):
         request.session['num_visits'] = num_visits + 1
     else:
         num_visits = -1
-    # --------------------------------------------------
 
     context = {
         'num_books': Book.objects.count(),
@@ -42,7 +34,6 @@ def index(request):
         'num_genres': Genre.objects.count(),
         'shelf_books': shelf_books,
         'num_visits': num_visits,
-        'django_version': django.get_version(),
     }
     return render(request, 'catalog/index.html', context)
 
@@ -56,8 +47,28 @@ def search_suggestions(request):
             results.append({'text': b.title, 'type': 'Book', 'url': b.get_absolute_url()})
         for g in Genre.objects.filter(name__icontains=q)[:3]:
             results.append({'text': g.name, 'type': 'Genre', 'url': f"/catalog/books/?q={g.name}"})
-            
     return JsonResponse({'results': results})
+
+@login_required
+def borrow_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    available_copy = book.bookinstance_set.filter(status='a').first()
+    if available_copy and request.method == 'POST':
+        available_copy.borrower = request.user
+        available_copy.status = 'o'
+        available_copy.due_back = date.today() + timedelta(days=14)
+        available_copy.save()
+    return redirect('my-borrowed')
+
+@login_required
+def return_book(request, pk):
+    copy = get_object_or_404(BookInstance, pk=pk)
+    if copy.borrower == request.user and request.method == 'POST':
+        copy.borrower = None
+        copy.status = 'a'
+        copy.due_back = None
+        copy.save()
+    return redirect('my-borrowed')
 
 class BookListView(generic.ListView):
     model = Book
@@ -65,6 +76,11 @@ class BookListView(generic.ListView):
 
 class BookDetailView(generic.DetailView):
     model = Book
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['available_copies'] = self.object.bookinstance_set.filter(status='a').count()
+        context['similar_books'] = Book.objects.filter(genre__in=self.object.genre.all()).exclude(pk=self.object.pk).distinct()[:3]
+        return context
 
 class AuthorListView(generic.ListView):
     model = Author
@@ -72,3 +88,14 @@ class AuthorListView(generic.ListView):
 
 class AuthorDetailView(generic.DetailView):
     model = Author
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['similar_authors'] = Author.objects.exclude(pk=self.object.pk).order_by('?')[:3]
+        return context
+
+class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
+    model = BookInstance
+    template_name ='catalog/bookinstance_list_borrowed_user.html'
+    paginate_by = 10
+    def get_queryset(self):
+        return BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o').order_by('due_back')

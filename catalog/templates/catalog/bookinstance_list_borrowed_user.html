@@ -1,0 +1,25 @@
+﻿{% extends "base_generic.html" %}
+
+{% block content %}
+<div class="glass-card">
+    <div class="section-title">My Reading Desk</div>
+    {% if bookinstance_list %}
+      {% for bookinst in bookinstance_list %}
+      <div class="list-row">
+        <div>
+          <a href="{% url 'book-detail' bookinst.book.pk %}" class="list-title">{{bookinst.book.title}}</a>
+          <div class="list-subtitle {% if bookinst.is_overdue %}text-danger{% else %}text-success{% endif %}">
+            Due back: {{ bookinst.due_back|date:"F j, Y" }} {% if bookinst.is_overdue %}(OVERDUE){% endif %}
+          </div>
+        </div>
+        <form method="post" action="{% url 'return-book' bookinst.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-action btn-return">Return</button>
+        </form>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty">Your desk is empty. Head to the catalog to borrow some books!</div>
+    {% endif %}
+</div>
+{% endblock %}

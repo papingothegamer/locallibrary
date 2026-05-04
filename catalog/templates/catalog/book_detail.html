@@ -1,29 +1,56 @@
 ﻿{% extends "base_generic.html" %}
 
-{% block title %}{{ book.title }} &mdash; LocalLibrary{% endblock %}
-
 {% block content %}
-  <h1>Title: {{ book.title }}</h1>
-  <p><strong>Author:</strong> <a href="{{ book.author.get_absolute_url }}">{{ book.author.full_name }}</a></p>
-  <p><strong>Summary:</strong> {{ book.summary }}</p>
-  <p><strong>ISBN:</strong> {{ book.isbn }}</p>
-  <p><strong>Language:</strong> {{ book.language }}</p>
-  <p><strong>Genre:</strong> {{ book.genre.all|join:", " }}</p>
+<div class="glass-card">
+  <div class="detail-grid">
+    <div>
+      <div style="width: 160px; height: 240px; background: #2E4057; border-radius: 4px; box-shadow: inset -5px 0 10px rgba(0,0,0,0.2), 5px 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; color: white; font-family: Georgia; margin: 0 auto;">
+        <h2>{{ book.title }}</h2>
+      </div>
+      
+      <div style="text-align: center; margin-top: 2rem;">
+        {% if user.is_authenticated %}
+            {% if available_copies > 0 %}
+                <form method="post" action="{% url 'borrow-book' book.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-action">Borrow Copy</button>
+                </form>
+                <p class="meta-lbl" style="margin-top: 10px;">{{ available_copies }} available</p>
+            {% else %}
+                <button class="btn-action" disabled>Currently Unavailable</button>
+            {% endif %}
+        {% else %}
+            <p class="meta-lbl">Log in to borrow</p>
+        {% endif %}
+      </div>
+    </div>
 
-  <div style="margin-left:20px;margin-top:20px">
-    <h4>Copies</h4>
-    {% for copy in book.bookinstance_set.all %}
-      <hr>
-      <p class="{% if copy.status == 'a' %}text-success{% elif copy.status == 'm' %}text-danger{% else %}text-warning{% endif %}">
-        {{ copy.get_status_display }}
+    <div>
+      <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">{{ book.title }}</h1>
+      <a href="{{ book.author.get_absolute_url }}" style="color: #4A83ED; font-size: 1.2rem; text-decoration: none; font-weight: bold;">{{ book.author.full_name }}</a>
+      
+      <div class="meta-lbl">Synopsis</div>
+      <p style="line-height: 1.6; margin-top: 5px;">{{ book.summary }}</p>
+
+      <div class="meta-lbl">Metadata</div>
+      <p style="font-family: system-ui; font-size: 13px; color: #555; margin-top: 5px;">
+        <strong>ISBN:</strong> {{ book.isbn }}<br>
+        <strong>Language:</strong> {{ book.language }}<br>
+        <strong>Genres:</strong> {{ book.display_genre }}
       </p>
-      {% if copy.status != 'a' %}
-        <p><strong>Due to be returned:</strong> {{ copy.due_back }}</p>
+
+      {% if similar_books %}
+        <div class="meta-lbl" style="margin-top: 2rem; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Similar Books</div>
+        <ul style="list-style: none; padding: 0; margin-top: 10px;">
+          {% for sim_book in similar_books %}
+            <li style="margin-bottom: 8px;">
+              <a href="{{ sim_book.get_absolute_url }}" style="color: #4A83ED; text-decoration: none;">{{ sim_book.title }}</a> 
+              <span style="font-family: system-ui; font-size: 12px; color: #888;">by {{ sim_book.author.full_name }}</span>
+            </li>
+          {% endfor %}
+        </ul>
       {% endif %}
-      <p><strong>Imprint:</strong> {{ copy.imprint }}</p>
-      <p class="text-muted"><strong>Id:</strong> {{ copy.id }}</p>
-    {% empty %}
-      <p>There are no copies of this book in the library.</p>
-    {% endfor %}
+    </div>
   </div>
+</div>
 {% endblock %}

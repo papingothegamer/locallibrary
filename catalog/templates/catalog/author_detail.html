@@ -1,22 +1,36 @@
 ﻿{% extends "base_generic.html" %}
 
-{% block title %}{{ author.full_name }} &mdash; LocalLibrary{% endblock %}
-
 {% block content %}
-  <h1>Author: {{ author.full_name }}</h1>
-  <p><strong>Born:</strong> {{ author.date_of_birth|default:"Unknown" }}</p>
-  <p><strong>Died:</strong> {{ author.date_of_death|default:"Present" }}</p>
+<div class="glass-card">
+  <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; text-align: center;">{{ author.full_name }}</h1>
+  <p style="text-align: center; color: #666; font-family: system-ui; font-size: 14px;">
+    {{ author.date_of_birth|date:"Y"|default:"?" }} &ndash; {{ author.date_of_death|date:"Y"|default:"Present" }}
+  </p>
 
-  <div style="margin-left:20px;margin-top:20px">
-    <h4>Books by this author</h4>
-    {% for book in author.book_set.all %}
-      <hr>
-      <p>
-        <strong><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></strong>
-      </p>
-      <p>{{ book.summary|truncatewords:30 }}</p>
-    {% empty %}
-      <p>This author has no books in the library.</p>
-    {% endfor %}
-  </div>
+  <div class="meta-lbl">Biography</div>
+  <p style="line-height: 1.6; margin-top: 5px;">{{ author.bio|default:"Biography not available at this time." }}</p>
+
+  <div class="meta-lbl" style="margin-top: 2rem; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Published Works ({{ author.book_set.count }})</div>
+  {% for book in author.book_set.all %}
+    <div class="list-row">
+      <div>
+        <a href="{{ book.get_absolute_url }}" class="list-title">{{ book.title }}</a>
+        <div class="list-subtitle">{{ book.display_genre }}</div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="empty">No books registered in the library.</div>
+  {% endfor %}
+
+  {% if similar_authors %}
+    <div class="meta-lbl" style="margin-top: 2rem; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Discover Other Authors</div>
+    <div style="display: flex; gap: 15px; margin-top: 15px;">
+      {% for sim_auth in similar_authors %}
+        <a href="{{ sim_auth.get_absolute_url }}" style="background: rgba(255,255,255,0.5); padding: 10px 15px; border-radius: 8px; text-decoration: none; color: #1a1a1a; font-weight: 500; font-family: system-ui; border: 1px solid #ddd;">
+          {{ sim_auth.full_name }}
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
 {% endblock %}
