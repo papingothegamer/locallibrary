@@ -1,0 +1,20 @@
+﻿{% extends "base_generic.html" %}
+{% block content %}
+<div class="breadcrumbs"><a href="{% url 'all-borrowed' %}">&larr; Back to Librarian Desk</a></div>
+<div class="glass-card" style="max-width: 500px; margin: 0 auto;">
+  <div class="section-title">Renew Book</div>
+  <h2 style="margin-bottom: 5px;">{{ book_instance.book.title }}</h2>
+  <p style="font-family: system-ui; color: #666; margin-bottom: 20px;">
+    Borrower: <strong>{{ book_instance.borrower }}</strong><br>
+    Current Due Date: <span class="{% if book_instance.is_overdue %}text-danger{% else %}text-success{% endif %}">{{ book_instance.due_back }}</span>
+  </p>
+  <form action="" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <input type="submit" value="Renew Book" class="btn-action">
+        <a href="{% url 'all-borrowed' %}" class="btn-action" style="background: #ccc; box-shadow: none; text-decoration: none; text-align: center;">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

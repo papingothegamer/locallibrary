@@ -8,6 +8,12 @@
   </p>
 
   <div class="meta-lbl">Biography</div>
+  {% if perms.catalog.can_mark_returned %}
+    <div style="margin-bottom: 15px;"\>
+      <a href="{% url 'author-update' author.id %}" class="btn-action btn-warning" style="text-decoration: none; padding: 6px 12px; font-size: 11px; margin-right: 5px;"\>Edit Author</a>
+      <a href="{% url 'author-delete' author.id %}" class="btn-action btn-return" style="text-decoration: none; padding: 6px 12px; font-size: 11px;"\>Delete</a>
+    </div>
+  {% endif %}
   <p style="line-height: 1.6; margin-top: 5px;">{{ author.bio|default:"Biography not available at this time." }}</p>
 
   <div class="meta-lbl" style="margin-top: 2rem; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Published Works ({{ author.book_set.count }})</div>
@@ -34,3 +40,4 @@
   {% endif %}
 </div>
 {% endblock %}
+

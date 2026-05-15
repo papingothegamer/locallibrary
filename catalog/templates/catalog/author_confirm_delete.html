@@ -1,0 +1,14 @@
+﻿{% extends "base_generic.html" %}
+{% block content %}
+<div class="breadcrumbs"><a href="{{ author.get_absolute_url }}">&larr; Cancel</a></div>
+<div class="glass-card" style="max-width: 500px; margin: 0 auto; text-align: center;">
+  <div class="section-title" style="color: #EF233C; border-color: #EF233C;">Danger Zone</div>
+  <h2 style="margin-bottom: 10px;">Delete {{ author.full_name }}?</h2>
+  <p style="font-family: system-ui; color: #555; margin-bottom: 25px;">Are you absolutely sure you want to permanently delete this author and all their associated records?</p>
+  <form action="" method="POST">
+    {% csrf_token %}
+    <input type="submit" value="Yes, delete author" class="btn-action btn-return">
+    <a href="{{ author.get_absolute_url }}" class="btn-action" style="background: #ccc; box-shadow: none; text-decoration: none; margin-left: 10px;">Cancel</a>
+  </form>
+</div>
+{% endblock %}

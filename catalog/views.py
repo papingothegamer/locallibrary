@@ -1,19 +1,20 @@
 ﻿import time
+import datetime
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
+from django.urls import reverse, reverse_lazy
 from django.views import generic
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.decorators import login_required
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.forms import UserCreationForm
-from django.urls import reverse_lazy
 from .models import Book, BookInstance, Author, Genre
-from datetime import date, timedelta
+from .forms import RenewBookModelForm
 
 SPINE_COLORS = ['#2E4057', '#E76F51', '#2A9D8F', '#E9C46A', '#9B5DE5', '#F72585', '#4361EE', '#F4A261', '#264653', '#A8DADC', '#C77DFF', '#06D6A0', '#EF233C', '#FB8500', '#3A86FF', '#8338EC', '#FF006E', '#FFBE0B', '#3D405B', '#81B29A']
 SPINE_HEIGHTS = [155, 170, 145, 180, 160, 140, 175, 150, 165, 185, 148, 172, 158, 142, 168, 178, 153, 163, 147, 182]
 
 def attach_book_colors(books):
-    """Utility to attach colors dynamically without altering the database models."""
     for book in books:
         book.spine_color = SPINE_COLORS[(book.id or 0) % len(SPINE_COLORS)]
         book.spine_height = SPINE_HEIGHTS[(book.id or 0) % len(SPINE_HEIGHTS)]
@@ -26,13 +27,9 @@ def index(request):
     request.session.set_test_cookie()
     if request.session.test_cookie_worked():
         request.session.delete_test_cookie()
-        
-        # --- Intelligent Visit Counter Logic ---
         num_visits = request.session.get('num_visits', 0)
         last_visit_time = request.session.get('last_visit_time', 0)
         current_time = time.time()
-        
-        # Only count as a new visit if it's been more than 1 hour (3600 seconds)
         if current_time - last_visit_time > 3600:
             num_visits += 1
             request.session['num_visits'] = num_visits
@@ -70,7 +67,7 @@ def borrow_book(request, pk):
     if available_copy and request.method == 'POST':
         available_copy.borrower = request.user
         available_copy.status = 'o'
-        available_copy.due_back = date.today() + timedelta(days=14)
+        available_copy.due_back = datetime.date.today() + datetime.timedelta(days=14)
         available_copy.save()
     return redirect('my-borrowed')
 
@@ -83,6 +80,23 @@ def return_book(request, pk):
         copy.due_back = None
         copy.save()
     return redirect('my-borrowed')
+
+@login_required
+@permission_required('catalog.can_mark_returned', raise_exception=True)
+def renew_book_librarian(request, pk):
+    book_instance = get_object_or_404(BookInstance, pk=pk)
+    if request.method == 'POST':
+        form = RenewBookModelForm(request.POST)
+        if form.is_valid():
+            book_instance.due_back = form.cleaned_data['due_back']
+            book_instance.save()
+            return HttpResponseRedirect(reverse('all-borrowed'))
+    else:
+        proposed_renewal_date = datetime.date.today() + datetime.timedelta(weeks=3)
+        form = RenewBookModelForm(initial={'due_back': proposed_renewal_date})
+    
+    context = {'form': form, 'book_instance': book_instance}
+    return render(request, 'catalog/book_renew_librarian.html', context)
 
 class SignUpView(generic.CreateView):
     form_class = UserCreationForm
@@ -102,7 +116,6 @@ class BookDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['available_copies'] = self.object.bookinstance_set.filter(status='a').count()
-        
         sim_books = list(Book.objects.filter(genre__in=self.object.genre.all()).exclude(pk=self.object.pk).distinct()[:3])
         context['similar_books'] = attach_book_colors(sim_books)
         attach_book_colors([self.object])
@@ -131,3 +144,47 @@ class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
         for inst in context['bookinstance_list']:
             if inst.book: attach_book_colors([inst.book])
         return context
+
+class LoanedBooksByAllListView(PermissionRequiredMixin, generic.ListView):
+    model = BookInstance
+    template_name ='catalog/bookinstance_list_borrowed_by_all.html'
+    permission_required = 'catalog.can_mark_returned'
+    paginate_by = 10
+    def get_queryset(self):
+        return BookInstance.objects.filter(status__exact='o').order_by('due_back')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        for inst in context['bookinstance_list']:
+            if inst.book: attach_book_colors([inst.book])
+        return context
+
+# --- LIBRARIAN GENERIC EDITING VIEWS ---
+class AuthorCreate(PermissionRequiredMixin, CreateView):
+    model = Author
+    fields = ['full_name', 'date_of_birth', 'date_of_death', 'bio']
+    permission_required = 'catalog.add_author'
+
+class AuthorUpdate(PermissionRequiredMixin, UpdateView):
+    model = Author
+    fields = ['full_name', 'date_of_birth', 'date_of_death', 'bio']
+    permission_required = 'catalog.change_author'
+
+class AuthorDelete(PermissionRequiredMixin, DeleteView):
+    model = Author
+    success_url = reverse_lazy('authors')
+    permission_required = 'catalog.delete_author'
+
+class BookCreate(PermissionRequiredMixin, CreateView):
+    model = Book
+    fields = ['title', 'author', 'summary', 'isbn', 'genre', 'language']
+    permission_required = 'catalog.add_book'
+
+class BookUpdate(PermissionRequiredMixin, UpdateView):
+    model = Book
+    fields = ['title', 'author', 'summary', 'isbn', 'genre', 'language']
+    permission_required = 'catalog.change_book'
+
+class BookDelete(PermissionRequiredMixin, DeleteView):
+    model = Book
+    success_url = reverse_lazy('books')
+    permission_required = 'catalog.delete_book'

@@ -28,6 +28,12 @@
       <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">{{ book.title }}</h1>
       <a href="{{ book.author.get_absolute_url }}" style="color: #4A83ED; font-size: 1.2rem; text-decoration: none; font-weight: bold;">{{ book.author.full_name }}</a>
       <div class="meta-lbl">Synopsis</div>
+      {% if perms.catalog.can_mark_returned %}
+        <div style="margin-bottom: 15px;"\>
+          <a href="{% url 'book-update' book.id %}" class="btn-action btn-warning" style="text-decoration: none; padding: 6px 12px; font-size: 11px; margin-right: 5px;"\>Edit Book</a>
+          <a href="{% url 'book-delete' book.id %}" class="btn-action btn-return" style="text-decoration: none; padding: 6px 12px; font-size: 11px;"\>Delete</a>
+        </div>
+      {% endif %}
       <p style="line-height: 1.6; margin-top: 5px;">{{ book.summary }}</p>
       <div class="meta-lbl">Metadata</div>
       <p style="font-family: system-ui; font-size: 13px; color: #555; margin-top: 5px;">
@@ -50,3 +56,4 @@
   </div>
 </div>
 {% endblock %}
+

@@ -1,0 +1,12 @@
+﻿{% extends "base_generic.html" %}
+{% block content %}
+<div class="breadcrumbs"><a href="{% url 'books' %}">&larr; Back to Catalog</a></div>
+<div class="glass-card" style="max-width: 600px; margin: 0 auto;">
+  <div class="section-title">{% if object %}Update Book{% else %}Add New Book{% endif %}</div>
+  <form action="" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Save Book" class="btn-action" style="margin-top: 15px;">
+  </form>
+</div>
+{% endblock %}

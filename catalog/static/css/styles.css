@@ -114,3 +114,11 @@ body { font-family: Georgia, serif; color: #1a1a1a; margin: 0; min-height: 100vh
 .view-grid .list-title { font-size: 17px; display: block; margin-bottom: 8px; line-height: 1.3; }
 .view-grid .genre-tag, .view-grid .book-count { margin-top: 15px; align-self: flex-start; }
 
+/* -- Form Inputs -- */
+.glass-card form p { display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px; font-family: system-ui; }
+.glass-card form label { font-size: 13px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+.glass-card form input[type="text"], .glass-card form input[type="date"], .glass-card form input[type="number"], .glass-card form select, .glass-card form textarea { padding: 12px; border-radius: 6px; border: 1px solid #ccc; font-family: system-ui; font-size: 14px; background: rgba(255,255,255,0.8); }
+.glass-card form input:focus, .glass-card form select:focus, .glass-card form textarea:focus { border-color: #4A83ED; outline: none; box-shadow: 0 0 0 3px rgba(74, 131, 237, 0.2); }
+.glass-card form .helptext { font-size: 11px; color: #777; margin-top: 2px; }
+.btn-warning { background: #FFBE0B; color: #1a1a1a; box-shadow: 0 4px 12px rgba(255, 190, 11, 0.3); }
+.btn-warning:hover { background: #E5A90A; }
