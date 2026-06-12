@@ -2,10 +2,10 @@
      BASE TEMPLATE — base_generic.html
      =============================================================
      This is the root template that ALL other pages extend via
-     {% extends "base_generic.html" %}. It defines:
-       1. The HTML <head> (charset, title, CSS link)
+     "extends base_generic.html". It defines:
+       1. The HTML head (charset, title, CSS link)
        2. The site-wide navigation bar
-       3. The main content area ({% block content %})
+       3. The main content area (the "content" block)
      Every page inherits this nav bar and structure.
      ============================================================= -->
 
@@ -14,7 +14,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- PAGE TITLE: Each child template can override this via {% block title %} -->
+  <!-- PAGE TITLE: Each child template can override the "title" block -->
   <title>{% block title %}LocalLibrary{% endblock %}</title>
   <!-- STYLESHEET: Links to the single CSS file for the entire site -->
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
@@ -70,7 +70,7 @@
        MAIN CONTENT AREA
        =============================================================
        All page-specific content goes inside this div. Child templates
-       override {% block content %} to fill this area.
+       override the "content" block to fill this area.
        The .content-wrap class centers content and sets max-width.
        ============================================================= -->
   <div class="content-wrap">
