@@ -100,19 +100,14 @@ def index(request):
 
     # --- SESSION-BASED VISIT COUNTER ---
     # Uses Django's session framework to track how many times
-    # this user has visited. Increments at most once per hour
-    # to avoid inflating the count on page refreshes.
+    # this user has visited. Increments on every page reload
+    # as requested for evaluation.
     request.session.set_test_cookie()
     if request.session.test_cookie_worked():
         request.session.delete_test_cookie()
         num_visits = request.session.get('num_visits', 0)
-        last_visit_time = request.session.get('last_visit_time', 0)
-        current_time = time.time()
-        # Only increment if more than 1 hour (3600 seconds) has passed
-        if current_time - last_visit_time > 3600:
-            num_visits += 1
-            request.session['num_visits'] = num_visits
-            request.session['last_visit_time'] = current_time
+        num_visits += 1
+        request.session['num_visits'] = num_visits
     else:
         # Cookies not working — set visits to -1 (template hides the counter)
         num_visits = -1

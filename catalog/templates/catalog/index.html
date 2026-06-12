@@ -33,13 +33,16 @@
        Submits a GET request to the book list page (/catalog/books/?q=...)
        to filter books. The JavaScript below also provides live
        autocomplete suggestions via the search-suggestions API endpoint.
+       Only visible to librarians (users with can_mark_returned permission).
        ============================================================= -->
-  <h2>Search</h2>
-  <form method="get" action="{% url 'books' %}" style="margin-bottom: 20px;">
-    <input type="text" name="q" id="searchInput" placeholder="Search books, authors, genres..." autocomplete="off">
-    <!-- AUTOCOMPLETE DROPDOWN: populated by JavaScript below -->
-    <div id="dropdown"></div>
-  </form>
+  {% if perms.catalog.can_mark_returned %}
+    <h2>Search</h2>
+    <form method="get" action="{% url 'books' %}" style="margin-bottom: 20px;">
+      <input type="text" name="q" id="searchInput" placeholder="Search books, authors, genres..." autocomplete="off">
+      <!-- AUTOCOMPLETE DROPDOWN: populated by JavaScript below -->
+      <div id="dropdown"></div>
+    </form>
+  {% endif %}
 
   <!-- =============================================================
        LIBRARY STATISTICS TABLE
@@ -97,7 +100,8 @@
   const searchInput = document.getElementById('searchInput');
   const dropdown = document.getElementById('dropdown');
 
-  searchInput.addEventListener('input', async (e) => {
+  if (searchInput) {
+    searchInput.addEventListener('input', async (e) => {
     const query = e.target.value;
     if (query.length > 0) {
       try {
@@ -122,6 +126,7 @@
       dropdown.innerHTML = '';
     }
   });
+  }
 </script>
 
 {% endblock %}
