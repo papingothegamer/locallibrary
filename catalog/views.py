@@ -284,6 +284,25 @@ class SignUpView(generic.CreateView):
     template_name = 'registration/signup.html'
 
 
+from .forms import LibrarianSignUpForm
+
+class LibrarianSignUpView(generic.CreateView):
+    """
+    LIBRARIAN REGISTRATION — Displays and processes the librarian signup form.
+
+    URL: /catalog/librarian-signup/ (name='librarian-signup')
+    Template: registration/librarian_signup.html
+    Form: LibrarianSignUpForm (UserCreationForm + Secret Code)
+
+    Displayed on the frontend:
+      - Shows username, password, and secret code fields
+      - On success, redirects to the login page
+    """
+    form_class = LibrarianSignUpForm
+    success_url = reverse_lazy('login')  # Redirect to login after signup
+    template_name = 'registration/librarian_signup.html'
+
+
 # ============================================================
 # BOOK LIST VIEW
 # ============================================================

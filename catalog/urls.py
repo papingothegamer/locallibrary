@@ -51,6 +51,11 @@ urlpatterns = [
     # Template: registration/signup.html
     path('signup/', views.SignUpView.as_view(), name='signup'),
 
+    # LIBRARIAN SIGNUP: Librarian registration page
+    # View: views.LibrarianSignUpView (class-based CreateView)
+    # Template: registration/librarian_signup.html
+    path('librarian-signup/', views.LibrarianSignUpView.as_view(), name='librarian-signup'),
+
     # --- AUTHENTICATED USER ACTIONS ---
 
     # BORROW BOOK: Assigns an available copy to the logged-in user (POST only)

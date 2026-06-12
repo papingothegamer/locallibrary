@@ -65,3 +65,40 @@ class RenewBookModelForm(ModelForm):
         labels = {'due_back': _('New renewal date')}
         # Help text shown below the input on the form page
         help_texts = {'due_back': _('Enter a date between now and 4 weeks (default 3).')}
+
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import Permission
+from django import forms
+from django.conf import settings
+
+class LibrarianSignUpForm(UserCreationForm):
+    """
+    LIBRARIAN REGISTRATION FORM
+    ============================================================
+    Inherits from UserCreationForm but adds a secret code field.
+    If the secret code matches LIBRARIAN_ACCESS_CODE from settings,
+    the user is granted specific librarian permissions upon creation.
+    """
+    secret_code = forms.CharField(
+        label="Librarian Access Code",
+        widget=forms.PasswordInput,
+        help_text="Enter the secret code provided by the administrator."
+    )
+
+    def clean_secret_code(self):
+        code = self.cleaned_data.get('secret_code')
+        if code != settings.LIBRARIAN_ACCESS_CODE:
+            raise ValidationError("Invalid access code.")
+        return code
+
+    def save(self, commit=True):
+        user = super().save(commit=commit)
+        if commit:
+            # Assign librarian permissions
+            perms = Permission.objects.filter(codename__in=[
+                'can_mark_returned',
+                'add_author', 'change_author', 'delete_author',
+                'add_book', 'change_book', 'delete_book'
+            ])
+            user.user_permissions.add(*perms)
+        return user

@@ -1,0 +1,41 @@
+<!-- =============================================================
+     LIBRARIAN SIGNUP PAGE — librarian_signup.html
+     =============================================================
+     Extends: base_generic.html
+     URL: /catalog/librarian-signup/ (name='librarian-signup')
+     View: catalog/views.py → LibrarianSignUpView (CreateView)
+     =============================================================
+     Displays a registration form for creating a Librarian account.
+     Includes a secret code field which must match the 
+     LIBRARIAN_ACCESS_CODE in settings.py to successfully register
+     and grant librarian permissions to the new user.
+     ============================================================= -->
+
+{% extends "base_generic.html" %}
+
+{% block title %}Sign Up as Librarian{% endblock %}
+
+{% block content %}
+
+  <h1>Librarian Registration</h1>
+  <p>Please enter your information and the secret librarian access code to create your account.</p>
+
+  <!-- =============================================================
+       SIGNUP FORM
+       =============================================================
+       {{ form.as_p }} renders the LibrarianSignUpForm fields:
+         - username
+         - password1
+         - password2 (confirmation)
+         - secret_code
+       ============================================================= -->
+  <form method="post" action="{% url 'librarian-signup' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">Create Librarian Account</button>
+  </form>
+
+  <!-- REGULAR SIGNUP LINK: For standard users -->
+  <p style="margin-top: 15px;">Not a staff member? <a href="{% url 'signup' %}">Sign up as a regular user here</a></p>
+
+{% endblock %}

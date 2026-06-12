@@ -22,6 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # WARNING: This is an insecure development key — must be changed in production
 SECRET_KEY = 'django-insecure-locallibrary-dev-key-change-in-production'
 
+# LIBRARIAN_ACCESS_CODE: The secret code required to sign up as a librarian
+LIBRARIAN_ACCESS_CODE = 'LibraryAdmin2026'
+
 # DEBUG: Enables detailed error pages and auto-reload in development
 # Must be False in production for security
 DEBUG = True
