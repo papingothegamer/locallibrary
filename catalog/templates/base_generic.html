@@ -1,47 +1,81 @@
-﻿{% load static %}
+<!-- =============================================================
+     BASE TEMPLATE — base_generic.html
+     =============================================================
+     This is the root template that ALL other pages extend via
+     {% extends "base_generic.html" %}. It defines:
+       1. The HTML <head> (charset, title, CSS link)
+       2. The site-wide navigation bar
+       3. The main content area ({% block content %})
+     Every page inherits this nav bar and structure.
+     ============================================================= -->
+
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!-- PAGE TITLE: Each child template can override this via {% block title %} -->
   <title>{% block title %}LocalLibrary{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=7">
+  <!-- STYLESHEET: Links to the single CSS file for the entire site -->
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
-<body class="bg-sky">
-  
-  <div class="clouds-fixed">
-    <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
-    <div class="cloud c4"></div><div class="cloud c5"></div><div class="cloud c6"></div>
-    <div class="cloud c7"></div><div class="cloud c8"></div>
-  </div>
+<body>
 
-  <div class="nav-wrap">
-    <a href="{% url 'index' %}" class="nav-link">Home</a>
-    <a href="{% url 'books' %}" class="nav-link">Catalog</a>
-    <a href="{% url 'authors' %}" class="nav-link">Authors</a>
+  <!-- =============================================================
+       NAVIGATION BAR
+       =============================================================
+       Displays site-wide links. Shows different links depending on
+       whether the user is logged in and whether they have librarian
+       permissions (catalog.can_mark_returned).
+       ============================================================= -->
+  <nav>
+    <!-- PUBLIC LINKS — visible to everyone -->
+    <a href="{% url 'index' %}">Home</a>
+    <a href="{% url 'books' %}">Catalog</a>
+    <a href="{% url 'authors' %}">Authors</a>
+
     {% if user.is_authenticated %}
+      <!-- LIBRARIAN-ONLY LINKS — visible only to users with 'can_mark_returned' permission -->
       {% if perms.catalog.can_mark_returned %}
-        <a href="{% url 'all-borrowed' %}" class="nav-link" style="color: #FFBE0B;"\>Lib Desk</a>
-        <a href="{% url 'book-create' %}" class="nav-link" style="color: #FFBE0B;"\>+ Book</a>
-        <a href="{% url 'author-create' %}" class="nav-link" style="color: #FFBE0B;"\>+ Author</a>
+        <a href="{% url 'all-borrowed' %}">Librarian Desk</a>
+        <a href="{% url 'book-create' %}">+ Book</a>
+        <a href="{% url 'author-create' %}">+ Author</a>
       {% endif %}
-      <a href="{% url 'my-borrowed' %}" class="nav-link" style="color: #06D6A0;">My Desk</a>
-      <form id="logout-form" method="post" action="{% url 'logout' %}?next=/" style="display:inline;">
+
+      <!-- AUTHENTICATED USER LINKS — visible to any logged-in user -->
+      <a href="{% url 'my-borrowed' %}">My Borrowed</a>
+
+      <!-- LOGOUT FORM — uses POST method for security (CSRF-protected) -->
+      <form method="post" action="{% url 'logout' %}?next=/" style="display:inline;">
         {% csrf_token %}
-        <button type="submit" class="btn-nav-logout">Logout ({{ user.get_username }})</button>
+        <button type="submit">Logout ({{ user.get_username }})</button>
       </form>
     {% else %}
-      <a href="{% url 'login' %}?next={{request.path}}" class="nav-link">Login</a>
-      <a href="{% url 'signup' %}" class="nav-link" style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.5);">Sign Up</a>
+      <!-- GUEST LINKS — visible only to unauthenticated users -->
+      <a href="{% url 'login' %}?next={{request.path}}">Login</a>
+      <a href="{% url 'signup' %}">Sign Up</a>
     {% endif %}
-  </div>
+  </nav>
 
+  <!-- =============================================================
+       PRE-CONTENT BLOCK
+       =============================================================
+       Optional block that child templates can use to inject content
+       BEFORE the main content-wrap div (e.g., the index page uses
+       this for its hero section).
+       ============================================================= -->
   {% block pre_content %}{% endblock %}
 
+  <!-- =============================================================
+       MAIN CONTENT AREA
+       =============================================================
+       All page-specific content goes inside this div. Child templates
+       override {% block content %} to fill this area.
+       The .content-wrap class centers content and sets max-width.
+       ============================================================= -->
   <div class="content-wrap">
     {% block content %}{% endblock %}
   </div>
 
 </body>
 </html>
-
-

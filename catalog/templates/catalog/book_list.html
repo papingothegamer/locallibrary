@@ -1,42 +1,67 @@
-﻿{% extends "base_generic.html" %}
+<!-- =============================================================
+     BOOK LIST PAGE — book_list.html
+     =============================================================
+     Extends: base_generic.html
+     URL: /catalog/books/ (name='books')
+     View: catalog/views.py → BookListView (generic ListView)
+     =============================================================
+     Displays a paginated list of all Book objects in the database.
+     The view passes `book_list` (queryset) and pagination context.
+     Each book links to its detail page via book.get_absolute_url().
+     ============================================================= -->
+
+{% extends "base_generic.html" %}
+
+{% block title %}Book Catalog{% endblock %}
+
 {% block content %}
-<div class="glass-card">
-  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; margin-bottom: 1.5rem; padding-bottom: 10px;">
-    <div class="section-title" style="border: none; margin: 0; padding: 0;">Library Catalog</div>
-    <div class="view-controls">
-      <button onclick="toggleView('list')" id="btnList" class="btn-view active">List</button>
-      <button onclick="toggleView('grid')" id="btnGrid" class="btn-view">Grid</button>
+
+  <h1>Book Catalog</h1>
+
+  <!-- =============================================================
+       BOOK LIST
+       =============================================================
+       Iterates over `book_list` from BookListView context.
+       Each item shows:
+         - Book title (linked to book-detail page)
+         - Author name
+         - Genre list (via book.display_genre method)
+       ============================================================= -->
+  {% if book_list %}
+    <ul>
+      {% for book in book_list %}
+        <li class="list-item">
+          <!-- BOOK TITLE: Links to /catalog/book/<pk> (book-detail URL) -->
+          <a href="{{ book.get_absolute_url }}"><strong>{{ book.title }}</strong></a>
+          <!-- AUTHOR: Displays the author's full_name field -->
+          — by {{ book.author.full_name }}
+          <!-- GENRE: Calls Book.display_genre() which joins first 3 genre names -->
+          <br><small>{{ book.display_genre }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No books found in the library.</p>
+  {% endif %}
+
+  <!-- =============================================================
+       PAGINATION CONTROLS
+       =============================================================
+       Django's generic ListView provides is_paginated, page_obj,
+       and paginator in the context when paginate_by is set (10).
+       Shows Previous/Next links and current page number.
+       ============================================================= -->
+  {% if is_paginated %}
+    <div style="margin-top: 20px;">
+      <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      &mdash;
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+      {% endif %}
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+      {% endif %}
     </div>
-  </div>
-  <div id="listContainer" class="view-list">
-    {% for book in book_list %}
-      <div class="list-row" style="border-left: 8px solid {{ book.spine_color }}; padding-left: 15px; border-radius: 4px;">
-        <div>
-          <a href="{{ book.get_absolute_url }}" class="list-title">{{ book.title }}</a>
-          <div class="list-subtitle">By {{ book.author.full_name }}</div>
-        </div>
-        <div class="genre-tag">{{ book.display_genre }}</div>
-      </div>
-    {% empty %}
-      <div class="empty">No books found in the library.</div>
-    {% endfor %}
-  </div>
-</div>
-<script>
-  function toggleView(viewType) {
-    const container = document.getElementById('listContainer');
-    const btnGrid = document.getElementById('btnGrid');
-    const btnList = document.getElementById('btnList');
-    if (viewType === 'grid') {
-      container.classList.remove('view-list'); container.classList.add('view-grid');
-      btnGrid.classList.add('active'); btnList.classList.remove('active');
-      localStorage.setItem('catalogView', 'grid');
-    } else {
-      container.classList.remove('view-grid'); container.classList.add('view-list');
-      btnList.classList.add('active'); btnGrid.classList.remove('active');
-      localStorage.setItem('catalogView', 'list');
-    }
-  }
-  document.addEventListener('DOMContentLoaded', () => { toggleView(localStorage.getItem('catalogView') || 'list'); });
-</script>
+  {% endif %}
+
 {% endblock %}

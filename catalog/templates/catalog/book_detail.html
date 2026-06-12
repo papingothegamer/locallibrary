@@ -1,59 +1,115 @@
-﻿{% extends "base_generic.html" %}
-{% block content %}
-<div class="breadcrumbs"><a href="{% url 'books' %}">&larr; Back to Catalog</a></div>
-<div class="glass-card">
-  <div class="detail-grid">
-    <div>
-      <div style="width: 160px; height: 240px; background: {{ book.spine_color }}; position: relative; border-radius: 4px; box-shadow: inset -5px 0 10px rgba(0,0,0,0.2), 5px 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; color: white; font-family: Georgia; margin: 0 auto;">
-        <div style="position: absolute; left: 12px; top: 0; bottom: 0; width: 3px; background: rgba(255,255,255,0.15);"></div>
-        <h2>{{ book.title }}</h2>
-      </div>
-      <div style="text-align: center; margin-top: 2rem;">
-        {% if user.is_authenticated %}
-            {% if available_copies > 0 %}
-                <form method="post" action="{% url 'borrow-book' book.pk %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-action">Borrow Copy</button>
-                </form>
-                <p class="meta-lbl" style="margin-top: 10px;">{{ available_copies }} available</p>
-            {% else %}
-                <button class="btn-action" disabled>Currently Unavailable</button>
-            {% endif %}
-        {% else %}
-            <p class="meta-lbl">Log in to borrow</p>
-        {% endif %}
-      </div>
-    </div>
-    <div>
-      <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">{{ book.title }}</h1>
-      <a href="{{ book.author.get_absolute_url }}" style="color: #4A83ED; font-size: 1.2rem; text-decoration: none; font-weight: bold;">{{ book.author.full_name }}</a>
-      <div class="meta-lbl">Synopsis</div>
-      {% if perms.catalog.can_mark_returned %}
-        <div style="margin-bottom: 15px;"\>
-          <a href="{% url 'book-update' book.id %}" class="btn-action btn-warning" style="text-decoration: none; padding: 6px 12px; font-size: 11px; margin-right: 5px;"\>Edit Book</a>
-          <a href="{% url 'book-delete' book.id %}" class="btn-action btn-return" style="text-decoration: none; padding: 6px 12px; font-size: 11px;"\>Delete</a>
-        </div>
-      {% endif %}
-      <p style="line-height: 1.6; margin-top: 5px;">{{ book.summary }}</p>
-      <div class="meta-lbl">Metadata</div>
-      <p style="font-family: system-ui; font-size: 13px; color: #555; margin-top: 5px;">
-        <strong>ISBN:</strong> {{ book.isbn }}<br>
-        <strong>Language:</strong> {{ book.language }}<br>
-        <strong>Genres:</strong> {{ book.display_genre }}
-      </p>
-      {% if similar_books %}
-        <div class="meta-lbl" style="margin-top: 2rem; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Similar Books</div>
-        <ul style="list-style: none; padding: 0; margin-top: 10px;">
-          {% for sim_book in similar_books %}
-            <li style="margin-bottom: 8px;">
-              <a href="{{ sim_book.get_absolute_url }}" style="color: #4A83ED; text-decoration: none;">{{ sim_book.title }}</a> 
-              <span style="font-family: system-ui; font-size: 12px; color: #888;">by {{ sim_book.author.full_name }}</span>
-            </li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    </div>
-  </div>
-</div>
-{% endblock %}
+<!-- =============================================================
+     BOOK DETAIL PAGE — book_detail.html
+     =============================================================
+     Extends: base_generic.html
+     URL: /catalog/book/<pk> (name='book-detail')
+     View: catalog/views.py → BookDetailView (generic DetailView)
+     =============================================================
+     Displays full details for a single Book object. The view
+     passes `book` (the Book object), `available_copies` (count of
+     BookInstances with status='a'), and `similar_books` (up to 3
+     books sharing the same genre).
+     ============================================================= -->
 
+{% extends "base_generic.html" %}
+
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block content %}
+
+  <!-- BACK LINK: Returns user to the full catalog list -->
+  <p><a href="{% url 'books' %}">&larr; Back to Catalog</a></p>
+
+  <!-- =============================================================
+       BOOK TITLE & AUTHOR
+       =============================================================
+       Displays the book's title as an h1 heading and the author's
+       name as a link to the author's detail page.
+       ============================================================= -->
+  <h1>{{ book.title }}</h1>
+  <p><strong>Author:</strong> <a href="{{ book.author.get_absolute_url }}">{{ book.author.full_name }}</a></p>
+
+  <!-- =============================================================
+       LIBRARIAN ACTIONS (PERMISSION-GATED)
+       =============================================================
+       Only visible to users with the 'can_mark_returned' permission
+       (i.e., librarians). Provides Edit and Delete links for this book.
+       - Edit links to BookUpdate view (/catalog/book/<pk>/update/)
+       - Delete links to BookDelete view (/catalog/book/<pk>/delete/)
+       ============================================================= -->
+  {% if perms.catalog.can_mark_returned %}
+    <p>
+      <a href="{% url 'book-update' book.id %}" class="btn">Edit Book</a>
+      <a href="{% url 'book-delete' book.id %}" class="btn btn-danger">Delete</a>
+    </p>
+  {% endif %}
+
+  <!-- =============================================================
+       BOOK SYNOPSIS
+       =============================================================
+       Displays book.summary — a text field up to 1000 chars set
+       in the Book model. This is the main description of the book.
+       ============================================================= -->
+  <h2>Synopsis</h2>
+  <p>{{ book.summary }}</p>
+
+  <!-- =============================================================
+       BOOK METADATA
+       =============================================================
+       Displays the ISBN, language, and genre list for this book.
+       - book.isbn:           13-character ISBN field
+       - book.language:       Language string field
+       - book.display_genre:  Model method that joins first 3 genre names
+       ============================================================= -->
+  <h2>Metadata</h2>
+  <ul>
+    <li><strong>ISBN:</strong> {{ book.isbn }}</li>
+    <li><strong>Language:</strong> {{ book.language }}</li>
+    <li><strong>Genres:</strong> {{ book.display_genre }}</li>
+  </ul>
+
+  <!-- =============================================================
+       BORROW SECTION
+       =============================================================
+       Shows a borrow button if the user is authenticated and copies
+       are available (available_copies > 0). The borrow form POSTs
+       to the borrow_book view which assigns a BookInstance to the
+       user with a 14-day due date.
+       ============================================================= -->
+  <h2>Availability</h2>
+  {% if user.is_authenticated %}
+    {% if available_copies > 0 %}
+      <p>{{ available_copies }} copy/copies available.</p>
+      <!-- BORROW FORM: POSTs to /catalog/book/<pk>/borrow/ (borrow_book view) -->
+      <form method="post" action="{% url 'borrow-book' book.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn">Borrow a Copy</button>
+      </form>
+    {% else %}
+      <p>Currently unavailable — all copies are on loan.</p>
+    {% endif %}
+  {% else %}
+    <!-- Prompts guest users to log in before borrowing -->
+    <p><a href="{% url 'login' %}">Log in</a> to borrow this book.</p>
+  {% endif %}
+
+  <!-- =============================================================
+       SIMILAR BOOKS
+       =============================================================
+       Displays up to 3 books that share at least one genre with
+       this book. Generated in BookDetailView.get_context_data() by
+       querying Book.objects.filter(genre__in=self.object.genre.all()).
+       ============================================================= -->
+  {% if similar_books %}
+    <h2>Similar Books</h2>
+    <ul>
+      {% for sim_book in similar_books %}
+        <li>
+          <a href="{{ sim_book.get_absolute_url }}">{{ sim_book.title }}</a>
+          — by {{ sim_book.author.full_name }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+{% endblock %}

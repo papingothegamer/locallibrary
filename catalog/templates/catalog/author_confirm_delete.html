@@ -1,14 +1,39 @@
-﻿{% extends "base_generic.html" %}
+<!-- =============================================================
+     AUTHOR DELETE CONFIRMATION — author_confirm_delete.html
+     =============================================================
+     Extends: base_generic.html
+     URL: /catalog/author/<pk>/delete/ (name='author-delete')
+     View: catalog/views.py → AuthorDelete (DeleteView)
+     =============================================================
+     Asks the librarian to confirm deletion of an Author object.
+     Requires 'catalog.delete_author' permission. On POST, the author
+     is deleted and user is redirected to the author list
+     (success_url = reverse_lazy('authors')).
+     ============================================================= -->
+
+{% extends "base_generic.html" %}
+
+{% block title %}Delete Author{% endblock %}
+
 {% block content %}
-<div class="breadcrumbs"><a href="{{ author.get_absolute_url }}">&larr; Cancel</a></div>
-<div class="glass-card" style="max-width: 500px; margin: 0 auto; text-align: center;">
-  <div class="section-title" style="color: #EF233C; border-color: #EF233C;">Danger Zone</div>
-  <h2 style="margin-bottom: 10px;">Delete {{ author.full_name }}?</h2>
-  <p style="font-family: system-ui; color: #555; margin-bottom: 25px;">Are you absolutely sure you want to permanently delete this author and all their associated records?</p>
+
+  <!-- CANCEL LINK: Returns to the author's detail page without deleting -->
+  <p><a href="{{ author.get_absolute_url }}">&larr; Cancel</a></p>
+
+  <h1>Delete Author</h1>
+
+  <!-- =============================================================
+       CONFIRMATION MESSAGE
+       =============================================================
+       Shows the author name and warns about permanent deletion.
+       ============================================================= -->
+  <p><strong>Are you sure you want to permanently delete "{{ author.full_name }}" and all associated records?</strong></p>
+
+  <!-- DELETE FORM: POST submits the deletion -->
   <form action="" method="POST">
     {% csrf_token %}
-    <input type="submit" value="Yes, delete author" class="btn-action btn-return">
-    <a href="{{ author.get_absolute_url }}" class="btn-action" style="background: #ccc; box-shadow: none; text-decoration: none; margin-left: 10px;">Cancel</a>
+    <button type="submit" class="btn btn-danger">Yes, delete author</button>
+    <a href="{{ author.get_absolute_url }}" class="btn" style="background:#ccc;color:#333;">Cancel</a>
   </form>
-</div>
+
 {% endblock %}

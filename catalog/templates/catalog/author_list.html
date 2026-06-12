@@ -1,53 +1,66 @@
-﻿{% extends "base_generic.html" %}
+<!-- =============================================================
+     AUTHOR LIST PAGE — author_list.html
+     =============================================================
+     Extends: base_generic.html
+     URL: /catalog/authors/ (name='authors')
+     View: catalog/views.py → AuthorListView (generic ListView)
+     =============================================================
+     Displays a paginated list of all Author objects. The view
+     passes `author_list` (queryset) in the context. Each author
+     links to their detail page.
+     ============================================================= -->
+
+{% extends "base_generic.html" %}
+
+{% block title %}Authors{% endblock %}
+
 {% block content %}
-<div class="glass-card">
-  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; margin-bottom: 1.5rem; padding-bottom: 10px;">
-    <div class="section-title" style="border: none; margin: 0; padding: 0;">Library Authors</div>
-    <div class="view-controls">
-      <button onclick="toggleView('list')" id="btnList" class="btn-view active">List</button>
-      <button onclick="toggleView('grid')" id="btnGrid" class="btn-view">Grid</button>
+
+  <h1>Authors</h1>
+
+  <!-- =============================================================
+       AUTHOR LIST
+       =============================================================
+       Iterates over `author_list` from AuthorListView context.
+       Each item shows:
+         - Author full name (linked to author-detail page)
+         - Birth/death year (using Django's date:"Y" filter)
+         - Number of books written (via author.book_set.count)
+       ============================================================= -->
+  {% if author_list %}
+    <ul>
+      {% for author in author_list %}
+        <li class="list-item">
+          <!-- AUTHOR NAME: Links to /catalog/author/<pk> (author-detail URL) -->
+          <a href="{{ author.get_absolute_url }}"><strong>{{ author.full_name }}</strong></a>
+          <!-- LIFESPAN: Shows birth year – death year (or "Present" if alive) -->
+          ({{ author.date_of_birth|date:"Y"|default:"?" }} &ndash; {{ author.date_of_death|date:"Y"|default:"Present" }})
+          <!-- BOOK COUNT: Counts related Book objects via reverse FK -->
+          — {{ author.book_set.count }} book{{ author.book_set.count|pluralize }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No authors found.</p>
+  {% endif %}
+
+  <!-- =============================================================
+       PAGINATION CONTROLS
+       =============================================================
+       Same pagination pattern as book_list.html.
+       AuthorListView sets paginate_by = 10.
+       ============================================================= -->
+  {% if is_paginated %}
+    <div style="margin-top: 20px;">
+      <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      &mdash;
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+      {% endif %}
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+      {% endif %}
     </div>
-  </div>
+  {% endif %}
 
-  <div id="listContainer" class="view-list">
-    {% for author in author_list %}
-      <div class="list-row">
-        <div>
-          <a href="{{ author.get_absolute_url }}" class="list-title">{{ author.full_name }}</a>
-          <div class="list-subtitle">{{ author.date_of_birth|date:"Y"|default:"?" }} &ndash; {{ author.date_of_death|date:"Y"|default:"Present" }}</div>
-        </div>
-        <div class="book-count">{{ author.book_set.count }} book{{ author.book_set.count|pluralize }}</div>
-      </div>
-    {% empty %}
-      <div class="empty">No authors found.</div>
-    {% endfor %}
-  </div>
-</div>
-
-<script>
-  function toggleView(viewType) {
-    const container = document.getElementById('listContainer');
-    const btnGrid = document.getElementById('btnGrid');
-    const btnList = document.getElementById('btnList');
-    
-    if (viewType === 'grid') {
-      container.classList.remove('view-list');
-      container.classList.add('view-grid');
-      btnGrid.classList.add('active');
-      btnList.classList.remove('active');
-      localStorage.setItem('authorView', 'grid');
-    } else {
-      container.classList.remove('view-grid');
-      container.classList.add('view-list');
-      btnList.classList.add('active');
-      btnGrid.classList.remove('active');
-      localStorage.setItem('authorView', 'list');
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const savedView = localStorage.getItem('authorView') || 'list';
-    toggleView(savedView);
-  });
-</script>
 {% endblock %}

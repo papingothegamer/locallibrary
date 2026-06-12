@@ -1,12 +1,44 @@
-﻿{% extends "base_generic.html" %}
+<!-- =============================================================
+     BOOK CREATE/UPDATE FORM — book_form.html
+     =============================================================
+     Extends: base_generic.html
+     URLs:
+       - CREATE: /catalog/book/create/ (name='book-create')
+         View: BookCreate (CreateView, requires 'catalog.add_book')
+       - UPDATE: /catalog/book/<pk>/update/ (name='book-update')
+         View: BookUpdate (UpdateView, requires 'catalog.change_book')
+     =============================================================
+     This single template handles both creating and editing books.
+     Django's CreateView/UpdateView automatically provide the `form`
+     object and an `object` variable (the existing Book, if editing).
+     The form fields are: title, author, summary, isbn, genre, language.
+     ============================================================= -->
+
+{% extends "base_generic.html" %}
+
+{% block title %}{% if object %}Update Book{% else %}Add New Book{% endif %}{% endblock %}
+
 {% block content %}
-<div class="breadcrumbs"><a href="{% url 'books' %}">&larr; Back to Catalog</a></div>
-<div class="glass-card" style="max-width: 600px; margin: 0 auto;">
-  <div class="section-title">{% if object %}Update Book{% else %}Add New Book{% endif %}</div>
+
+  <!-- BACK LINK: Returns to the catalog list -->
+  <p><a href="{% url 'books' %}">&larr; Back to Catalog</a></p>
+
+  <!-- HEADING: Changes based on whether we're creating or updating -->
+  <h1>{% if object %}Update Book{% else %}Add New Book{% endif %}</h1>
+
+  <!-- =============================================================
+       BOOK FORM
+       =============================================================
+       {{ form.as_p }} renders each form field (title, author, summary,
+       isbn, genre, language) as a <p> with a label and input.
+       On submit, Django validates and saves the Book object.
+       If creating: redirects to the new book's detail page.
+       If updating: redirects to the updated book's detail page.
+       ============================================================= -->
   <form action="" method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="Save Book" class="btn-action" style="margin-top: 15px;">
+    <input type="submit" value="Save Book" class="btn" style="margin-top: 10px;">
   </form>
-</div>
+
 {% endblock %}

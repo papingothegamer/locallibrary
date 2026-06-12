@@ -1,14 +1,40 @@
-﻿{% extends "base_generic.html" %}
+<!-- =============================================================
+     BOOK DELETE CONFIRMATION — book_confirm_delete.html
+     =============================================================
+     Extends: base_generic.html
+     URL: /catalog/book/<pk>/delete/ (name='book-delete')
+     View: catalog/views.py → BookDelete (DeleteView)
+     =============================================================
+     Asks the librarian to confirm deletion of a Book object.
+     Requires 'catalog.delete_book' permission. On POST confirmation,
+     the book is deleted and the user is redirected to the book list
+     (success_url = reverse_lazy('books')).
+     ============================================================= -->
+
+{% extends "base_generic.html" %}
+
+{% block title %}Delete Book{% endblock %}
+
 {% block content %}
-<div class="breadcrumbs"><a href="{{ book.get_absolute_url }}">&larr; Cancel</a></div>
-<div class="glass-card" style="max-width: 500px; margin: 0 auto; text-align: center;">
-  <div class="section-title" style="color: #EF233C; border-color: #EF233C;">Danger Zone</div>
-  <h2 style="margin-bottom: 10px;">Delete {{ book.title }}?</h2>
-  <p style="font-family: system-ui; color: #555; margin-bottom: 25px;">Are you absolutely sure you want to permanently delete this book?</p>
+
+  <!-- CANCEL LINK: Returns to the book's detail page without deleting -->
+  <p><a href="{{ book.get_absolute_url }}">&larr; Cancel</a></p>
+
+  <h1>Delete Book</h1>
+
+  <!-- =============================================================
+       CONFIRMATION MESSAGE
+       =============================================================
+       Shows the book title and asks for confirmation before
+       permanent deletion. This is a destructive action.
+       ============================================================= -->
+  <p><strong>Are you sure you want to permanently delete "{{ book.title }}"?</strong></p>
+
+  <!-- DELETE FORM: POST submits the deletion; GET just shows this page -->
   <form action="" method="POST">
     {% csrf_token %}
-    <input type="submit" value="Yes, delete book" class="btn-action btn-return">
-    <a href="{{ book.get_absolute_url }}" class="btn-action" style="background: #ccc; box-shadow: none; text-decoration: none; margin-left: 10px;">Cancel</a>
+    <button type="submit" class="btn btn-danger">Yes, delete book</button>
+    <a href="{{ book.get_absolute_url }}" class="btn" style="background:#ccc;color:#333;">Cancel</a>
   </form>
-</div>
+
 {% endblock %}

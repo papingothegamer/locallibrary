@@ -1,43 +1,88 @@
-﻿{% extends "base_generic.html" %}
+<!-- =============================================================
+     AUTHOR DETAIL PAGE — author_detail.html
+     =============================================================
+     Extends: base_generic.html
+     URL: /catalog/author/<pk> (name='author-detail')
+     View: catalog/views.py → AuthorDetailView (generic DetailView)
+     =============================================================
+     Displays full details for a single Author. The view passes:
+       - `author`:          The Author object
+       - `author_books`:    All books by this author (with colors attached)
+       - `similar_authors`: Up to 3 random other authors for discovery
+     ============================================================= -->
+
+{% extends "base_generic.html" %}
+
+{% block title %}{{ author.full_name }}{% endblock %}
+
 {% block content %}
-<div class="breadcrumbs"><a href="{% url 'authors' %}">&larr; Back to Authors</a></div>
-<div class="glass-card">
-  <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; text-align: center;">{{ author.full_name }}</h1>
-  <p style="text-align: center; color: #666; font-family: system-ui; font-size: 14px;">
-    {{ author.date_of_birth|date:"Y"|default:"?" }} &ndash; {{ author.date_of_death|date:"Y"|default:"Present" }}
-  </p>
 
-  <div class="meta-lbl">Biography</div>
+  <!-- BACK LINK: Returns user to the full authors list -->
+  <p><a href="{% url 'authors' %}">&larr; Back to Authors</a></p>
+
+  <!-- =============================================================
+       AUTHOR NAME & LIFESPAN
+       =============================================================
+       Displays the author's full_name as the page heading and
+       their birth/death years below.
+       ============================================================= -->
+  <h1>{{ author.full_name }}</h1>
+  <p>{{ author.date_of_birth|date:"Y"|default:"?" }} &ndash; {{ author.date_of_death|date:"Y"|default:"Present" }}</p>
+
+  <!-- =============================================================
+       LIBRARIAN ACTIONS (PERMISSION-GATED)
+       =============================================================
+       Only visible to users with 'can_mark_returned' permission.
+       Provides Edit and Delete links for this author.
+       ============================================================= -->
   {% if perms.catalog.can_mark_returned %}
-    <div style="margin-bottom: 15px;"\>
-      <a href="{% url 'author-update' author.id %}" class="btn-action btn-warning" style="text-decoration: none; padding: 6px 12px; font-size: 11px; margin-right: 5px;"\>Edit Author</a>
-      <a href="{% url 'author-delete' author.id %}" class="btn-action btn-return" style="text-decoration: none; padding: 6px 12px; font-size: 11px;"\>Delete</a>
-    </div>
+    <p>
+      <a href="{% url 'author-update' author.id %}" class="btn">Edit Author</a>
+      <a href="{% url 'author-delete' author.id %}" class="btn btn-danger">Delete</a>
+    </p>
   {% endif %}
-  <p style="line-height: 1.6; margin-top: 5px;">{{ author.bio|default:"Biography not available at this time." }}</p>
 
-  <div class="meta-lbl" style="margin-top: 2rem; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Published Works ({{ author.book_set.count }})</div>
+  <!-- =============================================================
+       BIOGRAPHY
+       =============================================================
+       Displays the author's bio text field, or a fallback message
+       if no biography has been entered.
+       ============================================================= -->
+  <h2>Biography</h2>
+  <p>{{ author.bio|default:"Biography not available at this time." }}</p>
+
+  <!-- =============================================================
+       PUBLISHED WORKS
+       =============================================================
+       Lists all books by this author, from `author_books` context
+       variable (populated via author.book_set.all() in the view).
+       Each book links to its detail page.
+       ============================================================= -->
+  <h2>Published Works ({{ author.book_set.count }})</h2>
   {% for book in author_books %}
-    <div class="list-row" style="border-left: 8px solid {{ book.spine_color }}; padding-left: 15px; border-radius: 4px;">
-      <div>
-        <a href="{{ book.get_absolute_url }}" class="list-title">{{ book.title }}</a>
-        <div class="list-subtitle">{{ book.display_genre }}</div>
-      </div>
+    <div class="list-item">
+      <!-- BOOK TITLE: Links to /catalog/book/<pk> -->
+      <a href="{{ book.get_absolute_url }}"><strong>{{ book.title }}</strong></a>
+      — {{ book.display_genre }}
     </div>
   {% empty %}
-    <div class="empty">No books registered in the library.</div>
+    <p>No books registered in the library.</p>
   {% endfor %}
 
+  <!-- =============================================================
+       DISCOVER OTHER AUTHORS
+       =============================================================
+       Shows up to 3 randomly selected other authors for exploration.
+       Generated in AuthorDetailView.get_context_data() via
+       Author.objects.exclude(pk=self.object.pk).order_by('?')[:3].
+       ============================================================= -->
   {% if similar_authors %}
-    <div class="meta-lbl" style="margin-top: 2rem; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Discover Other Authors</div>
-    <div style="display: flex; gap: 15px; margin-top: 15px;">
+    <h2>Discover Other Authors</h2>
+    <ul>
       {% for sim_auth in similar_authors %}
-        <a href="{{ sim_auth.get_absolute_url }}" style="background: rgba(255,255,255,0.5); padding: 10px 15px; border-radius: 8px; text-decoration: none; color: #1a1a1a; font-weight: 500; font-family: system-ui; border: 1px solid #ddd;">
-          {{ sim_auth.full_name }}
-        </a>
+        <li><a href="{{ sim_auth.get_absolute_url }}">{{ sim_auth.full_name }}</a></li>
       {% endfor %}
-    </div>
+    </ul>
   {% endif %}
-</div>
-{% endblock %}
 
+{% endblock %}

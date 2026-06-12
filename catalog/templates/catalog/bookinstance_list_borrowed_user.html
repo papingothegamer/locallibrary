@@ -1,24 +1,55 @@
-﻿{% extends "base_generic.html" %}
+<!-- =============================================================
+     MY BORROWED BOOKS — bookinstance_list_borrowed_user.html
+     =============================================================
+     Extends: base_generic.html
+     URL: /catalog/mybooks/ (name='my-borrowed')
+     View: catalog/views.py → LoanedBooksByUserListView
+     =============================================================
+     Displays books currently borrowed by the logged-in user.
+     Requires authentication (LoginRequiredMixin).
+     The view filters BookInstance objects where:
+       - borrower = current user
+       - status = 'o' (on loan)
+     Each item shows the book title, due date, overdue status,
+     and a Return button.
+     ============================================================= -->
+
+{% extends "base_generic.html" %}
+
+{% block title %}My Borrowed Books{% endblock %}
+
 {% block content %}
-<div class="glass-card">
-    <div class="section-title">My Reading Desk</div>
-    {% if bookinstance_list %}
+
+  <h1>My Borrowed Books</h1>
+
+  {% if bookinstance_list %}
+    <ul>
       {% for bookinst in bookinstance_list %}
-      <div class="list-row" style="border-left: 8px solid {{ bookinst.book.spine_color }}; padding-left: 15px; border-radius: 4px;">
-        <div>
-          <a href="{% url 'book-detail' bookinst.book.pk %}" class="list-title">{{bookinst.book.title}}</a>
-          <div class="list-subtitle {% if bookinst.is_overdue %}text-danger{% else %}text-success{% endif %}">
-            Due back: {{ bookinst.due_back|date:"F j, Y" }} {% if bookinst.is_overdue %}(OVERDUE){% endif %}
-          </div>
-        </div>
-        <form method="post" action="{% url 'return-book' bookinst.pk %}">
+        <li class="list-item">
+          <!-- BOOK TITLE: Links to the book's detail page -->
+          <a href="{% url 'book-detail' bookinst.book.pk %}"><strong>{{ bookinst.book.title }}</strong></a>
+          <br>
+          <!-- DUE DATE: Formatted as "Month Day, Year"
+               Color-coded via CSS classes:
+               - text-danger (red): book is overdue (bookinst.is_overdue is True)
+               - text-success (green): book is not overdue -->
+          <span class="{% if bookinst.is_overdue %}text-danger{% else %}text-success{% endif %}">
+            Due back: {{ bookinst.due_back|date:"F j, Y" }}
+            {% if bookinst.is_overdue %}(OVERDUE){% endif %}
+          </span>
+          <br>
+          <!-- RETURN FORM: POSTs to /catalog/bookinstance/<uuid>/return/
+               The return_book view sets status='a' and clears borrower/due_back -->
+          <form method="post" action="{% url 'return-book' bookinst.pk %}" style="display:inline;">
             {% csrf_token %}
-            <button type="submit" class="btn-action btn-return">Return</button>
-        </form>
-      </div>
+            <button type="submit" class="btn btn-danger">Return</button>
+          </form>
+        </li>
       {% endfor %}
-    {% else %}
-      <div class="empty">Your desk is empty. Head to the catalog to borrow some books!</div>
-    {% endif %}
-</div>
+    </ul>
+  {% else %}
+    <!-- Shown when the user has no books currently on loan -->
+    <p>Your desk is empty. Head to the <a href="{% url 'books' %}">catalog</a> to borrow some books!</p>
+  {% endif %}
+
 {% endblock %}

@@ -1,109 +1,127 @@
-﻿{% extends "base_generic.html" %}
+<!-- =============================================================
+     HOME PAGE — index.html
+     =============================================================
+     Extends: base_generic.html
+     URL: /catalog/ (name='index')
+     View: catalog/views.py → index()
+     =============================================================
+     Displays the library homepage with:
+       1. A welcome heading and subtitle
+       2. A search bar with live autocomplete suggestions
+       3. A table of library statistics (book/copy/author/genre counts)
+       4. Visit counter (tracked via session cookies)
+     ============================================================= -->
 
-{% block pre_content %}
-<style>
-  body { overflow: hidden; } 
-  .content-wrap { display: none !important; }
-</style>
+{% extends "base_generic.html" %}
 
-<div class="noselect">
-  <div class="blur-backdrop" id="searchBackdrop"></div>
+{% block title %}LocalLibrary — Home{% endblock %}
 
-  <div style="text-align: center; color: #ffffff; padding-top: 10vh; position: relative; z-index: 10;">
-    <div style="font-family: system-ui, sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 12px; text-shadow: 0 2px 6px rgba(0,0,0,0.4);">
-      University of Lodz &mdash; Application Servers
-    </div>
-    <div style="font-family: Georgia, serif; font-size: 76px; text-shadow: 0 6px 20px rgba(0,0,0,0.35);">
-      LocalLibrary
-    </div>
-  </div>
+{% block content %}
 
-  <div class="search-wrapper" id="searchWrapper">
-    <form method="get" action="{% url 'books' %}">
-      <input type="text" name="q" class="glass-input" id="searchInput" placeholder="Search books, authors, genres..." autocomplete="off">
-      <div class="search-close" id="searchClose">&times;</div>
-    </form>
-    <div class="autocomplete-dropdown" id="dropdown" style="display: none;"></div>
-  </div>
+  <!-- =============================================================
+       WELCOME HEADER
+       =============================================================
+       Displays the site name and university branding.
+       ============================================================= -->
+  <h1>LocalLibrary</h1>
+  <p>University of Lodz &mdash; Application Servers</p>
+  <hr>
 
-  <div class="stats-container">
-    <div class="stats-group">
-      {% if num_visits >= 0 %}<div class="stat-block"><div class="stat-val">{{ num_visits }}</div><div class="stat-lbl">Visit{{ num_visits|pluralize }}</div></div>{% endif %}
-      <div class="stat-block"><div class="stat-val">{{ num_books }}</div><div class="stat-lbl">Books</div></div>
-      <div class="stat-block"><div class="stat-val">{{ num_instances }}</div><div class="stat-lbl">Copies</div></div>
-    </div>
-    <div class="stats-group">
-      <div class="stat-block"><div class="stat-val">{{ num_instances_available }}</div><div class="stat-lbl">Available</div></div>
-      <div class="stat-block"><div class="stat-val">{{ num_authors }}</div><div class="stat-lbl">Authors</div></div>
-      <div class="stat-block"><div class="stat-val">{{ num_genres }}</div><div class="stat-lbl">Genres</div></div>
-    </div>
-  </div>
+  <!-- =============================================================
+       SEARCH FORM
+       =============================================================
+       Submits a GET request to the book list page (/catalog/books/?q=...)
+       to filter books. The JavaScript below also provides live
+       autocomplete suggestions via the search-suggestions API endpoint.
+       ============================================================= -->
+  <h2>Search</h2>
+  <form method="get" action="{% url 'books' %}" style="margin-bottom: 20px;">
+    <input type="text" name="q" id="searchInput" placeholder="Search books, authors, genres..." autocomplete="off">
+    <!-- AUTOCOMPLETE DROPDOWN: populated by JavaScript below -->
+    <div id="dropdown"></div>
+  </form>
 
-  <div class="shelf-wrap">
-    <div class="shelf">
-      {% for book in shelf_books %}
-      <div class="book" style="height:{{ book.spine_height }}px;">
-        <div class="book-inner" style="background:{{ book.spine_color }};">
-          <div class="spine-stars">{% cycle '****' '*****' '***' '****' '*****' %}</div>
-          <span class="spine-title">{{ book.title|upper }}</span>
-          <span class="spine-author">{{ book.author.full_name|slice:":10"|upper }}</span>
-          {% cycle '' '🤫' '' '🥚' '' '💀' '' '🔥' '' as sticker silent %}
-          {% if sticker %}<div class="spine-sticker">{{ sticker }}</div>{% endif %}
-        </div>
-        <div class="tooltip">
-          <div class="tt-title">{{ book.title }}</div>
-          <div class="tt-author">{{ book.author.full_name }}</div>
-          <div class="tt-genre">{{ book.display_genre }}</div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</div>
+  <!-- =============================================================
+       LIBRARY STATISTICS TABLE
+       =============================================================
+       Displays counts passed from the index() view context:
+         - num_books:              Total Book objects in the database
+         - num_instances:          Total BookInstance objects (physical copies)
+         - num_instances_available: BookInstances with status='a' (available)
+         - num_authors:            Total Author objects
+         - num_genres:             Total Genre objects
+         - num_visits:             Session-based visit counter (increments
+                                   once per hour per session)
+       ============================================================= -->
+  <h2>Library Statistics</h2>
+  <table>
+    <tr><th>Statistic</th><th>Count</th></tr>
+    <tr><td>Books</td><td>{{ num_books }}</td></tr>
+    <tr><td>Copies</td><td>{{ num_instances }}</td></tr>
+    <tr><td>Available Copies</td><td>{{ num_instances_available }}</td></tr>
+    <tr><td>Authors</td><td>{{ num_authors }}</td></tr>
+    <tr><td>Genres</td><td>{{ num_genres }}</td></tr>
+    {% if num_visits >= 0 %}
+      <!-- VISIT COUNTER: only shown if cookies are working (num_visits >= 0) -->
+      <tr><td>Your Visits</td><td>{{ num_visits }}</td></tr>
+    {% endif %}
+  </table>
 
+  <!-- =============================================================
+       BOOK LIST PREVIEW
+       =============================================================
+       Shows all books from shelf_books context variable (all Book
+       objects ordered by ID, with spine_color/spine_height attached
+       by the attach_book_colors() helper — unused visually here in
+       the minimal version but still available in context).
+       ============================================================= -->
+  <h2>All Books</h2>
+  <ul>
+    {% for book in shelf_books %}
+      <!-- Each book links to its detail page via book.get_absolute_url -->
+      <li><a href="{{ book.get_absolute_url }}">{{ book.title }}</a> — {{ book.author.full_name }}</li>
+    {% empty %}
+      <li>No books in the library yet.</li>
+    {% endfor %}
+  </ul>
+
+<!-- =============================================================
+     AUTOCOMPLETE JAVASCRIPT
+     =============================================================
+     Listens for input events on the search box, fetches suggestions
+     from the /catalog/search-suggestions/?q=... API endpoint (served
+     by views.py → search_suggestions()), and renders them as a
+     clickable list below the search input.
+     ============================================================= -->
 <script>
   const searchInput = document.getElementById('searchInput');
-  const searchWrapper = document.getElementById('searchWrapper');
-  const searchBackdrop = document.getElementById('searchBackdrop');
-  const searchClose = document.getElementById('searchClose');
   const dropdown = document.getElementById('dropdown');
-
-  searchInput.addEventListener('focus', () => {
-    searchWrapper.classList.add('active'); searchBackdrop.classList.add('active');
-    if (searchInput.value.length > 0) dropdown.style.display = 'block';
-  });
-
-  searchClose.addEventListener('click', () => {
-    searchWrapper.classList.remove('active'); searchBackdrop.classList.remove('active');
-    searchInput.value = ''; dropdown.style.display = 'none'; dropdown.innerHTML = '';
-  });
-
-  searchBackdrop.addEventListener('click', () => {
-    searchWrapper.classList.remove('active'); searchBackdrop.classList.remove('active');
-  });
 
   searchInput.addEventListener('input', async (e) => {
     const query = e.target.value;
     if (query.length > 0) {
-      dropdown.style.display = 'block';
       try {
+        /* Fetches JSON from the search_suggestions view:
+           Returns { results: [ {text, type, url}, ... ] } */
         const response = await fetch(`/catalog/search-suggestions/?q=${encodeURIComponent(query)}`);
         const data = await response.json();
         if (data.results.length > 0) {
-          dropdown.innerHTML = data.results.map(item => `
-            <a href="${item.url}" style="display: block; padding: 12px; text-decoration: none; color: #1a1a1a; border-bottom: 1px solid #eee; text-align: left; font-family: system-ui;">
-              <span style="font-weight: 500;">${item.text}</span>
-              <span style="float: right; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; background: #f0efe8; padding: 3px 8px; border-radius: 6px; color: #555;">${item.type}</span>
-            </a>
-          `).join('');
+          /* Renders each suggestion as a linked list item */
+          dropdown.innerHTML = '<ul style="list-style:none;padding:0;border:1px solid #ccc;background:#fff;">' +
+            data.results.map(item =>
+              `<li style="padding:8px;border-bottom:1px solid #eee;">
+                 <a href="${item.url}">${item.text} <small>(${item.type})</small></a>
+               </li>`
+            ).join('') + '</ul>';
         } else {
-          dropdown.innerHTML = '<div style="padding: 15px; color: #888; text-align: center; font-family: system-ui;">No results found.</div>';
+          dropdown.innerHTML = '<p style="color:#888;">No results found.</p>';
         }
-      } catch (err) {}
+      } catch (err) { /* Silently ignore fetch errors */ }
     } else {
-      dropdown.style.display = 'none'; dropdown.innerHTML = '';
+      /* Clears the dropdown when input is empty */
+      dropdown.innerHTML = '';
     }
   });
 </script>
-{% endblock %}
 
+{% endblock %}

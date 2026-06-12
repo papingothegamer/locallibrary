@@ -1,12 +1,41 @@
-﻿{% extends "base_generic.html" %}
+<!-- =============================================================
+     AUTHOR CREATE/UPDATE FORM — author_form.html
+     =============================================================
+     Extends: base_generic.html
+     URLs:
+       - CREATE: /catalog/author/create/ (name='author-create')
+         View: AuthorCreate (CreateView, requires 'catalog.add_author')
+       - UPDATE: /catalog/author/<pk>/update/ (name='author-update')
+         View: AuthorUpdate (UpdateView, requires 'catalog.change_author')
+     =============================================================
+     Handles both creating and editing authors. Same pattern as
+     book_form.html. Form fields: full_name, date_of_birth,
+     date_of_death, bio.
+     ============================================================= -->
+
+{% extends "base_generic.html" %}
+
+{% block title %}{% if object %}Update Author{% else %}Add New Author{% endif %}{% endblock %}
+
 {% block content %}
-<div class="breadcrumbs"><a href="{% url 'authors' %}">&larr; Back to Authors</a></div>
-<div class="glass-card" style="max-width: 600px; margin: 0 auto;">
-  <div class="section-title">{% if object %}Update Author{% else %}Add New Author{% endif %}</div>
+
+  <!-- BACK LINK: Returns to the authors list -->
+  <p><a href="{% url 'authors' %}">&larr; Back to Authors</a></p>
+
+  <!-- HEADING: Changes based on whether we're creating or updating -->
+  <h1>{% if object %}Update Author{% else %}Add New Author{% endif %}</h1>
+
+  <!-- =============================================================
+       AUTHOR FORM
+       =============================================================
+       {{ form.as_p }} renders fields: full_name, date_of_birth,
+       date_of_death, bio. On success, redirects to the author's
+       detail page (via Author.get_absolute_url).
+       ============================================================= -->
   <form action="" method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="Save Author" class="btn-action" style="margin-top: 15px;">
+    <input type="submit" value="Save Author" class="btn" style="margin-top: 10px;">
   </form>
-</div>
+
 {% endblock %}

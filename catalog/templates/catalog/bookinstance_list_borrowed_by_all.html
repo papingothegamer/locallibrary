@@ -1,22 +1,48 @@
-﻿{% extends "base_generic.html" %}
+<!-- =============================================================
+     LIBRARIAN DESK — bookinstance_list_borrowed_by_all.html
+     =============================================================
+     Extends: base_generic.html
+     URL: /catalog/borrowed/ (name='all-borrowed')
+     View: catalog/views.py → LoanedBooksByAllListView
+     =============================================================
+     Displays ALL currently loaned BookInstances across all users.
+     Restricted to users with 'catalog.can_mark_returned' permission
+     (PermissionRequiredMixin). Shows borrower name, due date,
+     overdue status, and a Renew link for each loan.
+     ============================================================= -->
+
+{% extends "base_generic.html" %}
+
+{% block title %}Librarian Desk — All Loans{% endblock %}
+
 {% block content %}
-<div class="glass-card">
-    <div class="section-title" style="color: #FFBE0B; border-color: #FFBE0B;">Librarian Administration Desk</div>
-    {% if bookinstance_list %}
+
+  <h1>Librarian Administration Desk</h1>
+
+  {% if bookinstance_list %}
+    <ul>
       {% for bookinst in bookinstance_list %}
-      <div class="list-row" style="border-left: 8px solid {{ bookinst.book.spine_color }}; padding-left: 15px; border-radius: 4px;">
-        <div>
-          <a href="{% url 'book-detail' bookinst.book.pk %}" class="list-title">{{bookinst.book.title}}</a>
-          <div class="list-subtitle">Borrower: {{ bookinst.borrower.username }}</div>
-          <div class="list-subtitle {% if bookinst.is_overdue %}text-danger{% else %}text-success{% endif %}">
-            Due back: {{ bookinst.due_back|date:"F j, Y" }} {% if bookinst.is_overdue %}(OVERDUE){% endif %}
-          </div>
-        </div>
-        <a href="{% url 'renew-book-librarian' bookinst.id %}" class="btn-action btn-warning" style="text-decoration: none;">Renew</a>
-      </div>
+        <li class="list-item">
+          <!-- BOOK TITLE: Links to book detail page -->
+          <a href="{% url 'book-detail' bookinst.book.pk %}"><strong>{{ bookinst.book.title }}</strong></a>
+          <br>
+          <!-- BORROWER: Shows the username of who borrowed this copy -->
+          Borrower: {{ bookinst.borrower.username }}
+          <br>
+          <!-- DUE DATE: Color-coded red if overdue, green if on-time -->
+          <span class="{% if bookinst.is_overdue %}text-danger{% else %}text-success{% endif %}">
+            Due back: {{ bookinst.due_back|date:"F j, Y" }}
+            {% if bookinst.is_overdue %}(OVERDUE){% endif %}
+          </span>
+          <br>
+          <!-- RENEW LINK: Takes librarian to the renewal form at
+               /catalog/book/<uuid>/renew/ (renew_book_librarian view) -->
+          <a href="{% url 'renew-book-librarian' bookinst.id %}" class="btn">Renew</a>
+        </li>
       {% endfor %}
-    {% else %}
-      <div class="empty">There are no books currently on loan.</div>
-    {% endif %}
-</div>
+    </ul>
+  {% else %}
+    <p>There are no books currently on loan.</p>
+  {% endif %}
+
 {% endblock %}

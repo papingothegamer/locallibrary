@@ -1,20 +1,59 @@
-﻿{% extends "base_generic.html" %}
+<!-- =============================================================
+     RENEW BOOK FORM — book_renew_librarian.html
+     =============================================================
+     Extends: base_generic.html
+     URL: /catalog/book/<uuid>/renew/ (name='renew-book-librarian')
+     View: catalog/views.py → renew_book_librarian()
+     =============================================================
+     Allows a librarian to set a new due date for a borrowed book.
+     Uses the RenewBookModelForm (from forms.py) which validates
+     that the new date is between today and 4 weeks in the future.
+     On success, redirects to the librarian desk (all-borrowed).
+     ============================================================= -->
+
+{% extends "base_generic.html" %}
+
+{% block title %}Renew Book{% endblock %}
+
 {% block content %}
-<div class="breadcrumbs"><a href="{% url 'all-borrowed' %}">&larr; Back to Librarian Desk</a></div>
-<div class="glass-card" style="max-width: 500px; margin: 0 auto;">
-  <div class="section-title">Renew Book</div>
-  <h2 style="margin-bottom: 5px;">{{ book_instance.book.title }}</h2>
-  <p style="font-family: system-ui; color: #666; margin-bottom: 20px;">
+
+  <!-- BACK LINK: Returns to the librarian desk -->
+  <p><a href="{% url 'all-borrowed' %}">&larr; Back to Librarian Desk</a></p>
+
+  <h1>Renew Book</h1>
+
+  <!-- =============================================================
+       BOOK & BORROWER INFO
+       =============================================================
+       Shows the title of the book being renewed, who borrowed it,
+       and the current due date (color-coded by overdue status).
+       ============================================================= -->
+  <h2>{{ book_instance.book.title }}</h2>
+  <p>
     Borrower: <strong>{{ book_instance.borrower }}</strong><br>
-    Current Due Date: <span class="{% if book_instance.is_overdue %}text-danger{% else %}text-success{% endif %}">{{ book_instance.due_back }}</span>
+    Current Due Date:
+    <span class="{% if book_instance.is_overdue %}text-danger{% else %}text-success{% endif %}">
+      {{ book_instance.due_back }}
+    </span>
   </p>
+
+  <!-- =============================================================
+       RENEWAL FORM
+       =============================================================
+       Django form rendered via {{ form.as_p }}.
+       The form has one field: 'due_back' (date input).
+       Validation in forms.py ensures the date is:
+         - Not in the past
+         - Not more than 4 weeks ahead
+       The initial value is pre-set to 3 weeks from today.
+       ============================================================= -->
   <form action="" method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <div style="display: flex; gap: 10px; margin-top: 20px;">
-        <input type="submit" value="Renew Book" class="btn-action">
-        <a href="{% url 'all-borrowed' %}" class="btn-action" style="background: #ccc; box-shadow: none; text-decoration: none; text-align: center;">Cancel</a>
+    <div style="margin-top: 10px;">
+      <input type="submit" value="Renew Book" class="btn">
+      <a href="{% url 'all-borrowed' %}" class="btn" style="background:#ccc;color:#333;">Cancel</a>
     </div>
   </form>
-</div>
+
 {% endblock %}

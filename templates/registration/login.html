@@ -1,27 +1,50 @@
-﻿{% extends "base_generic.html" %}
+<!-- =============================================================
+     LOGIN PAGE — login.html
+     =============================================================
+     Extends: base_generic.html
+     URL: /accounts/login/ (name='login')
+     View: Django's built-in LoginView (django.contrib.auth.urls)
+     =============================================================
+     Displays a username/password login form. Uses Django's built-in
+     authentication view — no custom view code needed, just this
+     template. On successful login, redirects to LOGIN_REDIRECT_URL
+     (set to '/' in settings.py) or the ?next= URL if provided.
+     ============================================================= -->
+
+{% extends "base_generic.html" %}
+
+{% block title %}Login{% endblock %}
 
 {% block content %}
-<div class="auth-wrapper">
-  <div class="auth-card">
-    <h2>Welcome Back</h2>
-    
-    {% if form.errors %}
-      <div style="background: #FFEBEB; color: #EF233C; padding: 10px; border-radius: 6px; font-family: system-ui; font-size: 13px; margin-bottom: 15px;">
-        Your username and password didn't match. Please try again.
-      </div>
-    {% endif %}
 
-    <form method="post" action="{% url 'login' %}">
-      {% csrf_token %}
-      {{ form.as_p }}
-      
-      <button type="submit" class="btn-action btn-auth">Log In</button>
-      <input type="hidden" name="next" value="{{ next|default:'/' }}" />
-    </form>
-    
-    <div style="margin-top: 20px; font-family: system-ui; font-size: 13px; color: #666; border-top: 1px solid #eee; padding-top: 15px;">
-      Don't have an account? <a href="{% url 'signup' %}" class="auth-link">Sign up here</a>
-    </div>
-  </div>
-</div>
+  <h1>Login</h1>
+
+  <!-- =============================================================
+       ERROR MESSAGE
+       =============================================================
+       Django's AuthenticationForm sets form.errors when the
+       username/password combination is invalid.
+       ============================================================= -->
+  {% if form.errors %}
+    <p style="color:red;">Your username and password didn't match. Please try again.</p>
+  {% endif %}
+
+  <!-- =============================================================
+       LOGIN FORM
+       =============================================================
+       {{ form.as_p }} renders the username and password fields.
+       The hidden 'next' field tells Django where to redirect
+       after successful login (defaults to '/' i.e. the homepage).
+       ============================================================= -->
+  <form method="post" action="{% url 'login' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">Log In</button>
+    <!-- REDIRECT TARGET: Where to go after successful login -->
+    <input type="hidden" name="next" value="{{ next|default:'/' }}" />
+  </form>
+
+  <!-- SIGNUP LINK: For users who don't have an account yet -->
+  <p style="margin-top: 15px;">Don't have an account? <a href="{% url 'signup' %}">Sign up here</a></p>
+
 {% endblock %}
